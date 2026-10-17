@@ -1,0 +1,16 @@
+{
+  "about": "Books shown in the dashboard's picker. Copy this file to projects.json (which stays private and is not committed) and add your own books. Paths are relative to this folder. 'settings' override the workbook's 设置 sheet (same keys). An entry with 'link' opens that page instead of a workbook.",
+  "projects": [
+    {
+      "id": "example",
+      "title": { "zh": "示例：星河旅店", "en": "Example: Starlight Inn" },
+      "workbook": "templates/示例_星河旅店.xlsx"
+    },
+    {
+      "id": "my-book",
+      "title": { "zh": "我的小说", "en": "My novel" },
+      "workbook": "../my-novel/故事数据库.xlsx",
+      "settings": { "mainCharacters": "C01、C02、C03" }
+    }
+  ]
+}

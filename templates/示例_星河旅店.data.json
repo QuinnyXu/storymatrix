@@ -1,0 +1,93 @@
+{
+  "about": "Example data for tools/make_template.py. A tiny invented story with a few deliberate conflicts (see 示例说明 in templates/README.md).",
+  "settings": { "title": "星河旅店（示例）", "titleEn": "Starlight Inn (example)", "referenceDate": "2031-09-01" },
+  "characters": [
+    { "id": "C01", "name": "林晚", "nameEn": "Lin Wan", "role": "女主·旅店老板", "main": "是", "group": "林家", "gender": "女", "birth": "1998-03-14", "profile": "接手外婆的旅店；嘴硬心软，怕海", "status": "定" },
+    { "id": "C02", "name": "周屿", "nameEn": "Zhou Yu", "role": "男主·画家", "main": "是", "group": "周家", "gender": "男", "birth": "1996-11-02", "profile": "欠了债、躲到海边小镇的画家", "status": "定", "extra": { "口头禅": "光线刚好" } },
+    { "id": "C03", "name": "阿婆", "nameEn": "Granny", "role": "林晚的外婆", "main": "是", "group": "林家", "gender": "女", "birth": "1948", "profile": "旅店创始人，知道很多旧事", "status": "定" },
+    { "id": "C04", "name": "林父", "short": "林父", "nameEn": "Lin's father", "role": "林晚的父亲（已故）", "main": "否", "group": "林家", "gender": "男", "birth": "1970-05-20", "death": "2020-11-03", "status": "定" },
+    { "id": "C05", "name": "小满", "nameEn": "Xiaoman", "role": "旅店小帮工", "main": "否", "group": "镇民", "gender": "男", "birth": "2022-05-01", "status": "暂" },
+    { "id": "C06", "name": "陈队长", "nameEn": "Captain Chen", "role": "反派·港务队长", "main": "是", "group": "港务队", "gender": "男", "birth": "1968", "profile": "想收购旅店；林父失踪那晚他也在海上", "status": "定" },
+    { "id": "C07", "name": "苏蔓", "nameEn": "Su Man", "role": "配角·画廊主", "main": "否", "group": "省城", "gender": "女", "birth": "1997", "status": "定" },
+    { "id": "C08", "name": "老周", "nameEn": "Old Zhou", "role": "周屿的父亲", "main": "否", "group": "周家", "gender": "男", "birth": "1966", "status": "暂" }
+  ],
+  "relationships": [
+    { "id": "R01", "a": "C01", "b": "C02", "type": "冷淡→恋人", "direction": "双向", "strength": 3, "start": "2030-09-01", "chapter": "CH01", "status": "定" },
+    { "id": "R02", "a": "C03", "b": "C01", "type": "祖孙", "direction": "双向", "strength": 3, "chapter": "CH01", "status": "定" },
+    { "id": "R03", "a": "C04", "b": "C01", "type": "父女", "direction": "双向", "strength": 2, "status": "定" },
+    { "id": "R04", "a": "C06", "b": "C04", "type": "旧友→仇人", "direction": "双向", "strength": 2, "status": "定" },
+    { "id": "R05", "a": "C06", "b": "C01", "type": "施压", "direction": "A→B", "strength": 2, "chapter": "CH05", "status": "定" },
+    { "id": "R06", "a": "C02", "b": "C07", "type": "前任", "direction": "双向", "strength": 1, "end": "2029-12-31", "chapter": "CH04", "status": "定" },
+    { "id": "R07", "a": "C08", "b": "C02", "type": "父子", "direction": "双向", "strength": 2, "status": "定", "notes": "父子为什么不和【缺】" },
+    { "id": "R08", "a": "C05", "b": "C01", "type": "像姐弟", "direction": "双向", "strength": 1, "status": "定" },
+    { "id": "R09", "a": "C07", "b": "C01", "type": "暗中较劲", "direction": "A→B", "strength": 1, "status": "议" },
+    { "id": "R10", "a": "C02", "b": "C06", "type": "对手", "direction": "双向", "strength": 1, "status": "弃", "notes": "旧大纲，已作废" }
+  ],
+  "locations": [
+    { "id": "L01", "name": "星河镇", "type": "城镇", "region": "本地", "status": "定" },
+    { "id": "L02", "name": "星河旅店", "type": "建筑", "parent": "L01", "region": "本地", "desc": "三层木楼，面海", "status": "定" },
+    { "id": "L03", "name": "码头", "type": "户外", "parent": "L01", "region": "本地", "status": "定" },
+    { "id": "L04", "name": "灯塔", "type": "建筑", "parent": "L01", "region": "本地", "status": "定" },
+    { "id": "L05", "name": "省城", "type": "城市", "region": "外地", "status": "定" },
+    { "id": "L06", "name": "省城画廊", "type": "建筑", "parent": "L05", "region": "外地", "status": "定" },
+    { "id": "L07", "name": "海上", "type": "户外", "region": "外地", "status": "定" }
+  ],
+  "events": [
+    { "id": "T01", "date": "2020-11-03", "precision": "日", "title": "林父出海，再没回来", "chars": "C04、C06", "loc": "L07", "chapter": "CH04", "category": "回忆", "status": "定" },
+    { "id": "T02", "date": "2030-09-01", "title": "暴雨夜，周屿第一次走进星河旅店", "chars": "C01、C02", "loc": "L02", "chapter": "CH01", "category": "正文", "status": "定" },
+    { "id": "T03", "date": "2030-10", "precision": "月", "title": "周屿天天去画灯塔", "chars": "C02", "loc": "L04", "chapter": "CH02", "category": "正文", "status": "定" },
+    { "id": "T04", "date": "2031 春节", "title": "旅店年夜饭", "chars": "C01、C02、C03、C05", "loc": "L02", "chapter": "CH03", "category": "正文", "status": "定" },
+    { "id": "T05", "date": "2031-01-23", "title": "阿婆去省城住院", "chars": "C03", "loc": "L05", "chapter": "CH03", "category": "后台事件", "status": "暂" },
+    { "id": "T06", "date": "2031 春", "precision": "季", "title": "苏蔓的画廊展出周屿的旧作", "chars": "C07", "loc": "L06", "chapter": "CH04", "category": "正文", "status": "定" },
+    { "id": "T07", "date": "2031-04-10", "title": "周屿夜里偷偷回到旅店", "chars": "C01、C02", "loc": "L02", "chapter": "CH04", "category": "正文", "status": "议" },
+    { "id": "T08", "date": "2031-06-20", "title": "阿婆梦见林父", "chars": "C03", "loc": "L02", "chapter": "CH05", "category": "正文", "status": "定" },
+    { "id": "T09", "date": "2031-07", "precision": "月", "title": "陈队长上门要收购旅店", "chars": "C06、C01、C09", "loc": "L02", "chapter": "CH05", "category": "正文", "status": "定", "notes": "收购价【缺】" },
+    { "id": "T10", "date": "2031-09-30", "title": "陈队长说在灯塔看见了林父", "chars": "C06", "loc": "L04", "chapter": "CH06", "category": "正文", "status": "暂" },
+    { "id": "T11", "date": "2031-10-01", "end": "2031-10-07", "title": "风暴周，全镇停电", "chars": "C01、C02、C03", "loc": "L01", "chapter": "CH06", "category": "正文", "status": "定" },
+    { "id": "T12", "date": "2032 春节", "title": "尾声：周屿留下来", "chars": "C01、C02、C03、C05", "loc": "L02", "chapter": "CH06", "category": "正文", "status": "定" },
+    { "id": "T13", "timeNote": "年份待定", "title": "林父与陈队长年轻时的约定", "chars": "C04、C06", "category": "背景", "status": "缺" },
+    { "id": "T14", "date": "约 2005", "title": "阿婆开了星河旅店", "chars": "C03", "loc": "L02", "category": "背景", "status": "推" }
+  ],
+  "appearances": [
+    { "event": "T02", "char": "C01", "action": "擦桌子，看见门口站着一个湿透的人", "part": "主导" },
+    { "event": "T02", "char": "C02", "action": "推门问还有没有房间", "part": "主导" },
+    { "event": "T04", "char": "C02", "action": "第一次包饺子，包成了船" },
+    { "event": "T04", "char": "C05", "action": "在码头放烟花", "loc": "L03" },
+    { "event": "T06", "char": "C02", "action": "画作展出，本人不在", "part": "提及" },
+    { "event": "T07", "char": "C02", "action": "敲旅店的后门" },
+    { "event": "T08", "char": "C04", "action": "出现在阿婆的梦里", "part": "提及" },
+    { "event": "T10", "char": "C04", "action": "灯塔上的人影" },
+    { "event": "T11", "char": "C02", "action": "帮林晚修屋顶" },
+    { "event": "T12", "char": "C02", "action": "把灯塔的画挂在大堂" }
+  ],
+  "stays": [
+    { "char": "C02", "start": "2031-03-01", "end": "2031-05-31", "loc": "L05", "status": "定", "notes": "回省城处理债务" },
+    { "char": "C07", "start": "2025-01-01", "end": "2032-12-31", "loc": "L05", "status": "定", "notes": "一直住在省城" }
+  ],
+  "chapters": [
+    { "id": "CH01", "order": 1, "title": "暴雨夜", "part": "上", "storyTime": "2030-09", "pov": "C01", "summary": "旅人到来", "status": "初稿" },
+    { "id": "CH02", "order": 2, "title": "灯塔", "part": "上", "storyTime": "2030 秋", "pov": "C02", "summary": "周屿画灯塔，发现灯每晚多闪一下", "status": "初稿" },
+    { "id": "CH03", "order": 3, "title": "年夜饭", "part": "上", "storyTime": "2031 春节", "pov": "C01", "status": "大纲" },
+    { "id": "CH04", "order": 4, "title": "旧画", "part": "下", "storyTime": "2031 春", "pov": "C02/C01", "summary": "周屿离开又回来；林父出海的回忆", "status": "大纲" },
+    { "id": "CH05", "order": 5, "title": "收购", "part": "下", "storyTime": "2031 夏", "pov": "C01", "status": "大纲" },
+    { "id": "CH06", "order": 6, "title": "风暴之后", "part": "下", "storyTime": "2031-10 → 2032 春节", "pov": "C01", "status": "大纲" }
+  ],
+  "foreshadowing": [
+    { "id": "F01", "content": "灯塔的灯每晚多闪一下", "planted": "CH02", "plan": "CH06", "paid": "CH06" },
+    { "id": "F02", "content": "周屿背包里卷着一幅旧画", "planted": "CH01", "plan": "CH04", "paid": "CH04" },
+    { "id": "F03", "content": "阿婆床头的药瓶", "planted": "CH05", "plan": "住院前", "paid": "CH03" },
+    { "id": "F04", "content": "林父留下的航海日志", "planted": "CH04", "plan": "【缺】" }
+  ],
+  "knowledge": [
+    { "id": "KS01", "secret": "林父失踪那晚陈队长也在海上", "char": "C06", "when": "2020-11-03", "how": "亲历", "status": "定" },
+    { "id": "KS01", "secret": "林父失踪那晚陈队长也在海上", "char": "C03", "when": "2021", "how": "林父的旧船员告诉她", "status": "暂" },
+    { "id": "KS01", "secret": "林父失踪那晚陈队长也在海上", "char": "C01", "when": "2031-10-05", "how": "风暴夜阿婆说出来", "status": "定" },
+    { "id": "KS02", "secret": "周屿欠了一大笔债", "char": "C02", "when": "2029", "how": "", "status": "定" },
+    { "id": "KS02", "secret": "周屿欠了一大笔债", "char": "C05", "when": "2019-06-01", "how": "偷听", "status": "议" }
+  ],
+  "festivals": [
+    { "year": 2031, "name": "春节", "date": "2031-01-23" },
+    { "year": 2031, "name": "中秋", "date": "2031-10-01" },
+    { "year": 2032, "name": "春节", "date": "2032-02-11" }
+  ]
+}

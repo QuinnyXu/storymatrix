@@ -1,0 +1,19 @@
+# generated reports contain a book's full story data - keep them local
+out/
+# your own list of books (copy projects.example.json to start)
+projects.json
+# older single-book dashboard kept only on this computer
+legacy.html
+style.css
+src/*.js
+!src/source.js
+src/rules/
+src/views/
+test/acceptance.mjs
+test/rules.test.mjs
+
+__pycache__/
+*.pyc
+node_modules/
+~$*.xlsx
+.DS_Store

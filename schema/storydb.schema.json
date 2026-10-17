@@ -1,0 +1,267 @@
+{
+  "name": "StoryDB",
+  "version": "1.0",
+  "about": {
+    "zh": "故事数据库标准模板。每张表第一列是 ID；其他表用 ID 引用它（像关系数据库）。表名、列名按名称匹配，可以插入新列，列的顺序随意。列名带「（自动）」的是公式列，仪表盘不读。",
+    "en": "Standard story database template. The first column of each sheet is an ID; other sheets refer to it by ID (like a relational database). Sheets and columns are matched by name; you may add columns and reorder them. Columns whose header contains '(auto)' are formula helpers and are ignored by the dashboard."
+  },
+  "conventions": {
+    "multiSeparator": "[、,，;；/\\n]+",
+    "autoHeaderPattern": "（自动）|\\(auto\\)|\\(自动\\)",
+    "statusValues": ["定", "暂", "议", "缺", "推", "弃"],
+    "statusLabels": {
+      "定": { "zh": "已定", "en": "Decided" },
+      "暂": { "zh": "暂定", "en": "Tentative" },
+      "议": { "zh": "提议", "en": "Proposed" },
+      "缺": { "zh": "待填", "en": "Missing" },
+      "推": { "zh": "推算", "en": "Inferred" },
+      "弃": { "zh": "作废", "en": "Dropped" }
+    },
+    "precisionValues": ["日", "月", "季", "年", "约"],
+    "dateGrammar": {
+      "zh": "日期可写：2031-07-11 · 2031-07 · 2031 · 2031 春 / 夏 / 秋 / 冬 · 2031 春节（查「节日」表）· 约 1850 · 也可以是 Excel 日期。",
+      "en": "Dates may be: 2031-07-11 · 2031-07 · 2031 · 2031 spring/summer/autumn/winter (春/夏/秋/冬) · 2031 春节 (looked up in the Festivals sheet) · 约 1850 (circa) · or an Excel date."
+    }
+  },
+  "sheets": [
+    {
+      "key": "settings",
+      "zh": "设置",
+      "en": "Settings",
+      "aliases": [],
+      "optional": true,
+      "keyValue": true,
+      "desc": { "zh": "整本书的设置：每行一个「项目 / 值」。不填就用默认值。", "en": "Book-wide settings, one key/value per row. Blank means default." },
+      "fields": [
+        { "key": "key", "zh": "项目", "en": "Key", "aliases": ["设置项"], "type": "text", "required": true },
+        { "key": "value", "zh": "值", "en": "Value", "aliases": [], "type": "text" },
+        { "key": "note", "zh": "说明", "en": "Note", "aliases": ["备注"], "type": "text" }
+      ],
+      "settings": [
+        { "key": "title", "zh": "书名", "en": "Title", "default": "", "desc": { "zh": "仪表盘标题", "en": "Dashboard title" } },
+        { "key": "titleEn", "zh": "英文书名", "en": "English title", "default": "", "desc": { "zh": "英文界面用", "en": "Used in the English UI" } },
+        { "key": "mainCharacters", "zh": "主要人物", "en": "Main characters", "default": "", "desc": { "zh": "人物ID，用顿号分隔；不填则用「人物.主要人物」列，再不填按出场次数取前 8 位", "en": "Character IDs separated by commas; blank = use the Main column, else the top 8 by appearances" } },
+        { "key": "rangeFrom", "zh": "显示起始", "en": "Display from", "default": "", "desc": { "zh": "时间轴默认起点，如 2030", "en": "Default timeline start, e.g. 2030" } },
+        { "key": "rangeTo", "zh": "显示结束", "en": "Display to", "default": "", "desc": { "zh": "时间轴默认终点", "en": "Default timeline end" } },
+        { "key": "referenceDate", "zh": "参照日期", "en": "Reference date", "default": "", "desc": { "zh": "人物档案里「当前年龄」按这一天算", "en": "Ages in character profiles are computed at this date" } },
+        { "key": "decidedStatus", "zh": "已定状态", "en": "Decided status", "default": "定", "desc": { "zh": "这个状态的行若还含「未定标记」会被提醒", "en": "Rows with this status that still contain open markers are flagged" } },
+        { "key": "droppedStatus", "zh": "作废状态", "en": "Dropped status", "default": "弃", "desc": { "zh": "这个状态的行在图上隐藏（引用仍有效）", "en": "Rows with this status are hidden (references still resolve)" } },
+        { "key": "openMarkers", "zh": "未定标记", "en": "Open markers", "default": "【缺】、【议】、【暂】、待定", "desc": { "zh": "文字里出现这些词说明还没定", "en": "Words that mark undecided text" } },
+        { "key": "statusValues", "zh": "状态取值", "en": "Status values", "default": "定、暂、议、缺、推、弃", "desc": { "zh": "状态列可用的值（按顺序配色）", "en": "Allowed values of the Status column (coloured in this order)" } }
+      ]
+    },
+    {
+      "key": "characters",
+      "zh": "人物",
+      "en": "Characters",
+      "aliases": ["角色", "People"],
+      "required": true,
+      "desc": { "zh": "每行一个人物。人物ID 一旦给出不改、不复用。", "en": "One row per character. Never change or reuse an ID." },
+      "fields": [
+        { "key": "id", "zh": "人物ID", "en": "Character ID", "aliases": ["ID", "CharacterID"], "type": "id", "required": true, "example": "C01", "width": 9 },
+        { "key": "name", "zh": "姓名", "en": "Name", "aliases": ["名称", "人物"], "type": "text", "required": true, "example": "林晚", "width": 14 },
+        { "key": "short", "zh": "简称", "en": "Short name", "aliases": ["小名", "昵称", "Nickname"], "type": "text", "desc": { "zh": "图上显示用，不填用姓名", "en": "Label on charts; defaults to Name" }, "width": 10 },
+        { "key": "nameEn", "zh": "英文名", "en": "English name", "aliases": [], "type": "text", "desc": { "zh": "英文界面显示", "en": "Shown in the English UI" }, "width": 12 },
+        { "key": "role", "zh": "定位", "en": "Role", "aliases": ["角色定位"], "type": "text", "desc": { "zh": "女主、导师、反派……", "en": "Protagonist, mentor, antagonist…" }, "width": 16 },
+        { "key": "main", "zh": "主要人物", "en": "Main", "aliases": ["主角", "重要"], "type": "bool", "enum": ["是", "否"], "desc": { "zh": "是 = 默认出现在时间线和关系图", "en": "Yes = shown by default on the timeline and map" }, "width": 9 },
+        { "key": "group", "zh": "分组", "en": "Group", "aliases": ["阵营", "家族", "所属机构", "Faction"], "type": "text", "desc": { "zh": "关系图按它上色：家族、阵营、学校……", "en": "Colours the relationship map: family, faction, school…" }, "width": 12 },
+        { "key": "gender", "zh": "性别", "en": "Gender", "aliases": [], "type": "text", "width": 6 },
+        { "key": "species", "zh": "物种", "en": "Species", "aliases": [], "type": "text", "width": 10 },
+        { "key": "birth", "zh": "出生日期", "en": "Birth date", "aliases": ["生日", "出生"], "type": "date", "desc": { "zh": "用来算年龄", "en": "Used for ages" }, "width": 12 },
+        { "key": "death", "zh": "去世日期", "en": "Death date", "aliases": ["死亡日期"], "type": "date", "width": 12 },
+        { "key": "identity", "zh": "身份", "en": "Identity", "aliases": [], "type": "text", "width": 12 },
+        { "key": "firstChapter", "zh": "首次出场章", "en": "First chapter", "aliases": [], "type": "ref", "ref": "chapters", "width": 10 },
+        { "key": "profile", "zh": "简介", "en": "Profile", "aliases": ["性格与设定", "性格与习惯", "人物简介"], "type": "text", "width": 40 },
+        { "key": "status", "zh": "状态", "en": "Status", "aliases": ["层标"], "type": "status", "width": 7 },
+        { "key": "notes", "zh": "备注", "en": "Notes", "aliases": [], "type": "text", "width": 30 }
+      ]
+    },
+    {
+      "key": "relationships",
+      "zh": "关系",
+      "en": "Relationships",
+      "aliases": ["人物关系"],
+      "optional": true,
+      "desc": { "zh": "每行一对人物的关系，画成关系图。", "en": "One pair per row; drawn as the relationship map." },
+      "fields": [
+        { "key": "id", "zh": "关系ID", "en": "Relationship ID", "aliases": ["ID"], "type": "id", "required": true, "example": "R01", "width": 9 },
+        { "key": "a", "zh": "人物A_ID", "en": "Character A ID", "aliases": ["人物AID", "人物A ID"], "type": "ref", "ref": "characters", "required": true, "width": 10 },
+        { "key": "aName", "zh": "人物A（自动）", "en": "Character A (auto)", "auto": "name:a", "width": 10 },
+        { "key": "b", "zh": "人物B_ID", "en": "Character B ID", "aliases": ["人物BID", "人物B ID"], "type": "ref", "ref": "characters", "required": true, "width": 10 },
+        { "key": "bName", "zh": "人物B（自动）", "en": "Character B (auto)", "auto": "name:b", "width": 10 },
+        { "key": "type", "zh": "关系类型", "en": "Type", "aliases": ["关系"], "type": "text", "required": true, "desc": { "zh": "父女、恋人、师徒、对手；变化可写成 冤家→恋人", "en": "Parent, lover, mentor, rival; changes as rivals→lovers" }, "width": 18 },
+        { "key": "direction", "zh": "方向", "en": "Direction", "aliases": [], "type": "enum", "enum": ["双向", "A→B"], "desc": { "zh": "A→B 表示单向（暗恋、追随）", "en": "A→B = one-way (crush, follower)" }, "width": 7 },
+        { "key": "strength", "zh": "强度", "en": "Strength", "aliases": ["重要度"], "type": "int", "enum": ["1", "2", "3"], "desc": { "zh": "1–3，决定连线粗细", "en": "1–3, line thickness" }, "width": 6 },
+        { "key": "start", "zh": "开始日期", "en": "Start date", "aliases": [], "type": "date", "width": 11 },
+        { "key": "end", "zh": "结束日期", "en": "End date", "aliases": [], "type": "date", "width": 11 },
+        { "key": "chapter", "zh": "首次交集章", "en": "First chapter", "aliases": ["章节ID"], "type": "ref", "ref": "chapters", "width": 10 },
+        { "key": "status", "zh": "状态", "en": "Status", "aliases": ["层标"], "type": "status", "width": 7 },
+        { "key": "notes", "zh": "备注", "en": "Notes", "aliases": [], "type": "text", "width": 30 }
+      ]
+    },
+    {
+      "key": "locations",
+      "zh": "地点",
+      "en": "Locations",
+      "aliases": ["场所", "Places"],
+      "optional": true,
+      "desc": { "zh": "每行一个地点。上级地点ID 可以建层级（宿舍 ⊂ 校园 ⊂ 城市）。", "en": "One place per row. Parent ID builds a hierarchy (dorm ⊂ campus ⊂ city)." },
+      "fields": [
+        { "key": "id", "zh": "地点ID", "en": "Location ID", "aliases": ["ID"], "type": "id", "required": true, "example": "L01", "width": 9 },
+        { "key": "name", "zh": "名称", "en": "Name", "aliases": ["地点"], "type": "text", "required": true, "width": 20 },
+        { "key": "type", "zh": "类型", "en": "Type", "aliases": [], "type": "text", "desc": { "zh": "时间线可按类型上色", "en": "The timeline can colour by type" }, "width": 10 },
+        { "key": "parent", "zh": "上级地点ID", "en": "Parent ID", "aliases": [], "type": "ref", "ref": "locations", "width": 10 },
+        { "key": "parentName", "zh": "上级地点（自动）", "en": "Parent (auto)", "auto": "loc:parent", "width": 12 },
+        { "key": "region", "zh": "区域", "en": "Region", "aliases": ["分区"], "type": "text", "desc": { "zh": "更大的分组，如 城内 / 城外、国内 / 海外", "en": "Coarser group, e.g. inside / outside town" }, "width": 10 },
+        { "key": "desc", "zh": "描述", "en": "Description", "aliases": [], "type": "text", "width": 36 },
+        { "key": "firstChapter", "zh": "首次出现章", "en": "First chapter", "aliases": [], "type": "ref", "ref": "chapters", "width": 10 },
+        { "key": "status", "zh": "状态", "en": "Status", "aliases": ["层标"], "type": "status", "width": 7 },
+        { "key": "notes", "zh": "备注", "en": "Notes", "aliases": [], "type": "text", "width": 24 }
+      ]
+    },
+    {
+      "key": "events",
+      "zh": "事件",
+      "en": "Events",
+      "aliases": ["时间线", "Timeline"],
+      "required": true,
+      "desc": { "zh": "每行一个事件（时间线）。涉及人物ID 写简单的「谁在场」；要写每个人做什么、在哪，用「出场」表。", "en": "One event per row (the timeline). Characters lists who is involved; use the Appearances sheet for what each one does and where." },
+      "fields": [
+        { "key": "id", "zh": "事件ID", "en": "Event ID", "aliases": ["ID"], "type": "id", "required": true, "example": "T01", "width": 8 },
+        { "key": "date", "zh": "日期", "en": "Date", "aliases": ["开始日期"], "type": "date", "desc": { "zh": "空 = 未定日期", "en": "Blank = undated" }, "width": 12 },
+        { "key": "precision", "zh": "精度", "en": "Precision", "aliases": [], "type": "enum", "enum": ["日", "月", "季", "年", "约"], "desc": { "zh": "日期精确到哪一级；不填按写法推断", "en": "How exact the date is; inferred when blank" }, "width": 6 },
+        { "key": "end", "zh": "结束日期", "en": "End date", "aliases": [], "type": "date", "desc": { "zh": "持续一段时间的事件", "en": "For events that last a while" }, "width": 12 },
+        { "key": "timeNote", "zh": "时间说明", "en": "Time note", "aliases": ["时段"], "type": "text", "desc": { "zh": "自由文字，如「开春到入秋」", "en": "Free text, e.g. 'spring to autumn'" }, "width": 12 },
+        { "key": "title", "zh": "事件", "en": "Event", "aliases": ["标题", "事件名称", "Title"], "type": "text", "required": true, "width": 40 },
+        { "key": "chars", "zh": "涉及人物ID", "en": "Character IDs", "aliases": ["人物ID", "出场人物ID"], "type": "refs", "ref": "characters", "desc": { "zh": "多个用顿号分隔：C01、C02", "en": "Several separated by 、 or commas" }, "width": 16 },
+        { "key": "loc", "zh": "地点ID", "en": "Location ID", "aliases": [], "type": "refs", "ref": "locations", "desc": { "zh": "事件发生地；多个时第一个为主", "en": "Where it happens; first one is primary" }, "width": 9 },
+        { "key": "locName", "zh": "地点（自动）", "en": "Location (auto)", "auto": "loc:loc", "width": 14 },
+        { "key": "chapter", "zh": "章节ID", "en": "Chapter ID", "aliases": ["章ID"], "type": "ref", "ref": "chapters", "width": 9 },
+        { "key": "category", "zh": "类别", "en": "Category", "aliases": ["类型"], "type": "text", "desc": { "zh": "正文、回忆、背景、后台事件……", "en": "Main, flashback, backstory, off-page…" }, "width": 9 },
+        { "key": "status", "zh": "状态", "en": "Status", "aliases": ["层标"], "type": "status", "width": 7 },
+        { "key": "notes", "zh": "备注", "en": "Notes", "aliases": ["备注 / 待定问题"], "type": "text", "width": 30 }
+      ]
+    },
+    {
+      "key": "appearances",
+      "zh": "出场",
+      "en": "Appearances",
+      "aliases": ["人物事件", "参与"],
+      "optional": true,
+      "desc": { "zh": "事件 × 人物：每行写一个人物在一个事件里做什么、在哪里。不在事件地点时填自己的地点ID。", "en": "Event × character: what one character does in one event, and where. Fill Location ID only when it differs from the event's." },
+      "fields": [
+        { "key": "event", "zh": "事件ID", "en": "Event ID", "aliases": [], "type": "ref", "ref": "events", "required": true, "width": 8 },
+        { "key": "eventName", "zh": "事件（自动）", "en": "Event (auto)", "auto": "event:event", "width": 24 },
+        { "key": "char", "zh": "人物ID", "en": "Character ID", "aliases": [], "type": "ref", "ref": "characters", "required": true, "width": 9 },
+        { "key": "charName", "zh": "人物（自动）", "en": "Character (auto)", "auto": "name:char", "width": 10 },
+        { "key": "action", "zh": "行动", "en": "Action", "aliases": ["做什么", "描述", "内容"], "type": "text", "width": 40 },
+        { "key": "loc", "zh": "地点ID", "en": "Location ID", "aliases": [], "type": "ref", "ref": "locations", "desc": { "zh": "不填 = 事件地点", "en": "Blank = the event's location" }, "width": 9 },
+        { "key": "locName", "zh": "地点（自动）", "en": "Location (auto)", "auto": "loc:loc", "width": 14 },
+        { "key": "part", "zh": "参与方式", "en": "Part", "aliases": ["角色"], "type": "enum", "enum": ["主导", "参与", "提及"], "desc": { "zh": "提及 = 只被提到、本人不在场", "en": "Mentioned = talked about, not present" }, "width": 8 },
+        { "key": "notes", "zh": "备注", "en": "Notes", "aliases": [], "type": "text", "width": 24 }
+      ]
+    },
+    {
+      "key": "stays",
+      "zh": "行踪",
+      "en": "Whereabouts",
+      "aliases": ["行程", "Stays"],
+      "optional": true,
+      "desc": { "zh": "一段时间里某人在哪里（旅行、留学、外出）。时间线上画成色条。", "en": "Where someone is over a period (trip, study abroad). Drawn as a bar on the timeline." },
+      "fields": [
+        { "key": "char", "zh": "人物ID", "en": "Character ID", "aliases": [], "type": "ref", "ref": "characters", "required": true, "width": 9 },
+        { "key": "charName", "zh": "人物（自动）", "en": "Character (auto)", "auto": "name:char", "width": 10 },
+        { "key": "start", "zh": "开始日期", "en": "Start date", "aliases": [], "type": "date", "required": true, "width": 12 },
+        { "key": "end", "zh": "结束日期", "en": "End date", "aliases": [], "type": "date", "desc": { "zh": "不填 = 当天", "en": "Blank = same day" }, "width": 12 },
+        { "key": "loc", "zh": "地点ID", "en": "Location ID", "aliases": [], "type": "ref", "ref": "locations", "required": true, "width": 9 },
+        { "key": "locName", "zh": "地点（自动）", "en": "Location (auto)", "auto": "loc:loc", "width": 14 },
+        { "key": "status", "zh": "状态", "en": "Status", "aliases": ["层标"], "type": "status", "width": 7 },
+        { "key": "notes", "zh": "备注", "en": "Notes", "aliases": [], "type": "text", "width": 30 }
+      ]
+    },
+    {
+      "key": "chapters",
+      "zh": "章节",
+      "en": "Chapters",
+      "aliases": [],
+      "optional": true,
+      "desc": { "zh": "每行一章。章序决定叙事顺序。", "en": "One chapter per row. Order sets the narrative order." },
+      "fields": [
+        { "key": "id", "zh": "章ID", "en": "Chapter ID", "aliases": ["章节ID", "ID"], "type": "id", "required": true, "example": "CH01", "width": 8 },
+        { "key": "order", "zh": "章序", "en": "Order", "aliases": ["序号"], "type": "number", "width": 6 },
+        { "key": "title", "zh": "标题", "en": "Title", "aliases": ["章名"], "type": "text", "width": 16 },
+        { "key": "part", "zh": "部", "en": "Part", "aliases": ["卷"], "type": "text", "width": 8 },
+        { "key": "storyTime", "zh": "故事内时间", "en": "Story time", "aliases": [], "type": "text", "width": 14 },
+        { "key": "pov", "zh": "主视角", "en": "POV", "aliases": ["视角"], "type": "refs", "ref": "characters", "lenient": true, "desc": { "zh": "人物ID 或姓名，多个用 / 分隔", "en": "Character ID or name; several separated by /" }, "width": 10 },
+        { "key": "summary", "zh": "梗概", "en": "Summary", "aliases": ["一句话梗概"], "type": "text", "width": 40 },
+        { "key": "words", "zh": "字数", "en": "Words", "aliases": [], "type": "number", "width": 7 },
+        { "key": "status", "zh": "状态", "en": "Status", "aliases": [], "type": "text", "desc": { "zh": "大纲 / 初稿 / 修订中 / 定稿", "en": "Outline / draft / revising / final" }, "width": 8 },
+        { "key": "file", "zh": "文件", "en": "File", "aliases": [], "type": "text", "width": 20 }
+      ]
+    },
+    {
+      "key": "scenes",
+      "zh": "场景",
+      "en": "Scenes",
+      "aliases": [],
+      "optional": true,
+      "desc": { "zh": "章内场景。出场人物也算进关系图的「同场」连线。", "en": "Scenes within chapters. Their cast also counts toward co-appearance links." },
+      "fields": [
+        { "key": "id", "zh": "场景ID", "en": "Scene ID", "aliases": ["ID"], "type": "id", "required": true, "example": "S001", "width": 8 },
+        { "key": "chapter", "zh": "章ID", "en": "Chapter ID", "aliases": ["章节ID"], "type": "ref", "ref": "chapters", "width": 8 },
+        { "key": "order", "zh": "序", "en": "Order", "aliases": [], "type": "number", "width": 5 },
+        { "key": "loc", "zh": "地点ID", "en": "Location ID", "aliases": [], "type": "ref", "ref": "locations", "width": 9 },
+        { "key": "chars", "zh": "出场人物ID", "en": "Character IDs", "aliases": ["涉及人物ID"], "type": "refs", "ref": "characters", "width": 16 },
+        { "key": "event", "zh": "事件ID", "en": "Event ID", "aliases": [], "type": "ref", "ref": "events", "width": 8 },
+        { "key": "summary", "zh": "梗概", "en": "Summary", "aliases": [], "type": "text", "width": 36 },
+        { "key": "status", "zh": "状态", "en": "Status", "aliases": [], "type": "text", "width": 8 }
+      ]
+    },
+    {
+      "key": "foreshadowing",
+      "zh": "伏笔",
+      "en": "Foreshadowing",
+      "aliases": ["伏笔台账"],
+      "optional": true,
+      "desc": { "zh": "埋在哪章、在哪章回收。", "en": "Where each setup is planted and paid off." },
+      "fields": [
+        { "key": "id", "zh": "伏笔ID", "en": "Setup ID", "aliases": ["ID"], "type": "id", "required": true, "example": "F01", "width": 8 },
+        { "key": "content", "zh": "内容", "en": "Content", "aliases": [], "type": "text", "required": true, "width": 40 },
+        { "key": "planted", "zh": "埋设章", "en": "Planted in", "aliases": [], "type": "ref", "ref": "chapters", "width": 9 },
+        { "key": "plan", "zh": "预定回收", "en": "Planned payoff", "aliases": [], "type": "text", "width": 16 },
+        { "key": "paid", "zh": "实际回收章", "en": "Paid off in", "aliases": ["回收章"], "type": "ref", "ref": "chapters", "width": 9 },
+        { "key": "notes", "zh": "备注", "en": "Notes", "aliases": [], "type": "text", "width": 24 }
+      ]
+    },
+    {
+      "key": "knowledge",
+      "zh": "知情台账",
+      "en": "Knowledge",
+      "aliases": ["知情", "秘密"],
+      "optional": true,
+      "desc": { "zh": "谁在什么时候知道了什么。每位知情人一行，同一秘密用同一个秘密ID。", "en": "Who learns what, when. One row per knower; the same secret keeps the same ID." },
+      "fields": [
+        { "key": "id", "zh": "秘密ID", "en": "Secret ID", "aliases": ["ID"], "type": "id", "unique": false, "required": true, "example": "KS01", "width": 9 },
+        { "key": "secret", "zh": "秘密", "en": "Secret", "aliases": [], "type": "text", "width": 36 },
+        { "key": "char", "zh": "知情人ID", "en": "Knower ID", "aliases": ["人物ID"], "type": "ref", "ref": "characters", "required": true, "width": 9 },
+        { "key": "charName", "zh": "知情人（自动）", "en": "Knower (auto)", "auto": "name:char", "width": 10 },
+        { "key": "when", "zh": "何时得知", "en": "Learned on", "aliases": [], "type": "date", "lenient": true, "desc": { "zh": "日期或文字；文字不参与检查", "en": "Date or text; text is not checked" }, "width": 12 },
+        { "key": "how", "zh": "如何得知", "en": "How", "aliases": [], "type": "text", "width": 20 },
+        { "key": "status", "zh": "状态", "en": "Status", "aliases": ["层标"], "type": "status", "width": 7 }
+      ]
+    },
+    {
+      "key": "festivals",
+      "zh": "节日",
+      "en": "Festivals",
+      "aliases": ["节日日期", "历法"],
+      "optional": true,
+      "desc": { "zh": "让日期可以写成「2031 春节」。每行：年份、节日名称、公历日期。", "en": "Lets dates be written as '2031 春节'. Each row: year, festival name, calendar date." },
+      "fields": [
+        { "key": "year", "zh": "年", "en": "Year", "aliases": ["公历年"], "type": "int", "required": true, "width": 7 },
+        { "key": "name", "zh": "名称", "en": "Name", "aliases": ["节日"], "type": "text", "required": true, "width": 10 },
+        { "key": "date", "zh": "日期", "en": "Date", "aliases": [], "type": "date", "required": true, "width": 12 }
+      ]
+    }
+  ]
+}

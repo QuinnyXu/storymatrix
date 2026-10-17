@@ -1,0 +1,13 @@
+{
+  "name": "storymatrix",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Story database template + read-only interactive dashboard / 故事数据库模板与只读仪表盘",
+  "scripts": {
+    "test": "node test/storydb.test.mjs",
+    "check": "node tools/storydb.mjs check",
+    "report": "node tools/storydb.mjs report",
+    "templates": "python tools/make_template.py --force && python tools/make_template.py --lang en --force && python tools/make_template.py --data templates/示例_星河旅店.data.json --out templates/示例_星河旅店.xlsx --force"
+  }
+}

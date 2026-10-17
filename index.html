@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>故事仪表盘</title>
+  <link rel="stylesheet" href="std.css">
+  <script src="vendor/xlsx.full.min.js"></script>
+  <script src="vendor/echarts.min.js"></script>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <h1 id="title">故事仪表盘</h1>
+      <div id="srcInfo" class="muted small"></div>
+    </div>
+    <div class="actions">
+      <select id="project" aria-label="project"></select>
+      <button id="btnOpen" data-i18n="btn.open">打开文件…</button>
+      <button id="btnReload" data-i18n="btn.reload">重新读取</button>
+      <label class="small"><input type="checkbox" id="chkAuto" checked> <span data-i18n="btn.auto">自动刷新</span></label>
+      <details class="menu" id="exportMenu">
+        <summary data-i18n="btn.export">导出</summary>
+        <div>
+          <button data-export="report" data-i18n="export.report"></button>
+          <button data-export="chron" data-i18n="export.chron"></button>
+          <button data-export="json" data-i18n="export.json"></button>
+          <button data-export="timelinePng" data-i18n="export.timelinePng"></button>
+          <button data-export="png" data-i18n="export.png"></button>
+        </div>
+      </details>
+      <button id="btnTheme" data-i18n-title="btn.theme" aria-label="theme">◐</button>
+      <button id="btnLang">EN</button>
+    </div>
+  </header>
+  <div id="banner"></div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="overview" data-i18n="tab.overview"></button>
+    <button data-tab="timeline" data-i18n="tab.timeline"></button>
+    <button data-tab="profile" data-i18n="tab.profile"></button>
+    <button data-tab="graph" data-i18n="tab.graph"></button>
+    <button data-tab="checks"><span data-i18n="tab.checks"></span><span id="checkBadge"></span></button>
+  </nav>
+  <section id="filters" class="filters"></section>
+  <main>
+    <div id="view-empty" class="view"></div>
+    <div id="view-overview" class="view"></div>
+    <div id="view-timeline" class="view">
+      <div class="split">
+        <div>
+          <div class="card">
+            <p class="hint" data-i18n="tl.hint"></p>
+            <div id="tlLegend" class="legend"></div>
+            <div id="timeline" style="width:100%;height:400px"></div>
+          </div>
+          <div class="card">
+            <h2 data-i18n="tl.narrative"></h2>
+            <p class="hint" data-i18n="tl.narrativeHint"></p>
+            <div id="narLegend" class="legend"></div>
+            <div id="narrative" style="width:100%;height:320px"></div>
+          </div>
+        </div>
+        <aside class="side card" id="eventDetail"></aside>
+      </div>
+    </div>
+    <div id="view-profile" class="view"></div>
+    <div id="view-graph" class="view">
+      <div class="card">
+        <p class="hint" data-i18n="g.hint"></p>
+        <div id="graphControls" class="fgroup" style="margin-bottom:6px"></div>
+        <div id="graphLegend" class="legend"></div>
+        <div id="graph" style="width:100%;height:560px"></div>
+      </div>
+      <div class="card"><h2 data-i18n="g.table"></h2><div id="relTable" class="tablewrap"></div></div>
+    </div>
+    <div id="view-checks" class="view"></div>
+  </main>
+  <div id="drop" class="drop"><span data-i18n="drop.hint"></span></div>
+  <input type="file" id="fileInput" accept=".xlsx,.xlsm" hidden>
+  <script type="module" src="src/std/app.js"></script>
+</body>
+</html>
