@@ -96,3 +96,10 @@ node tools/storydb.mjs report example [--lang en] [--out DIR]
 - `src/std/checks.js` checks · `src/std/export.js` reports · `src/std/views/*` charts and panels · `src/std/app.js` wiring
 - `tools/make_template.py` builds templates · `tools/storydb.mjs` CLI · `test/storydb.test.mjs` tests (`npm test`)
 - `vendor/` SheetJS and ECharts (offline copies)
+
+## Contributing and roadmap / 参与与路线图
+
+StoryMatrix is free and open source under the [GNU GPL v3](LICENSE) (or any later version): you may use, change and share it, and if you share a changed version you must share its source under the same license. Third-party notes are in [NOTICE](NOTICE). Start with
+[docs/ROUND1_HANDOVER.md](docs/ROUND1_HANDOVER.md): the current state, how the code fits together, recipes for adding
+columns, checks and views, the next candidates, and longer-term directions. Please use made-up stories only in
+examples, tests and issues - never real manuscripts.

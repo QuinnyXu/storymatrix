@@ -1,0 +1,11 @@
+StoryMatrix
+Copyright (C) 2026 the StoryMatrix contributors
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
+version. It is distributed WITHOUT ANY WARRANTY; see the LICENSE file for details.
+
+Bundled third-party code in vendor/ keeps its own license:
+- vendor/echarts.min.js - Apache ECharts, Apache License 2.0 (https://echarts.apache.org)
+- vendor/xlsx.full.min.js - SheetJS Community Edition, Apache License 2.0 (https://sheetjs.com)
+Apache License 2.0 code may be combined into a GPL-3.0 work.
