@@ -1,7 +1,7 @@
 // Story-agnostic consistency checks over a loaded StoryDB. Each check is a small function: (db) -> findings.
 // Loader issues (missing sheets, duplicate IDs, broken references, unreadable dates) are already in db.issues.
 // To add a check: write a function below and add it to CHECKS.
-import { isDropped, sameOrNested, locName, charFull, stayAt, SHEET } from './load.js';
+import { isDropped, sameOrNested, locName, charFull, stayAt, SHEET, vocabLabel } from './load.js';
 import { fmtDate } from './dates.js';
 
 const SEV = { error: 0, warning: 1, info: 2 };
@@ -25,7 +25,7 @@ function lifespan(db) {
           msg: { zh: `${cname(db, c.id)} 在出生（${fmtDate(b, '日')}）之前出场：${when}「${a.ev.title}」`, en: `${charFull(c, 'en')} appears before birth (${fmtDate(b, '日', 'en')}): ${when} "${a.ev.title}"` } });
       if (d != null && a.span[0] > d)
         out.push({ sev: 'error', code: 'C01', ...where(a.ev), eventId: a.event, chars: [c.id], dateMs: a.dateMs,
-          msg: { zh: `${cname(db, c.id)} 在去世（${fmtDate(d, '日')}）之后出场：${when}「${a.ev.title}」（只是被提到的话，把「参与方式」填成「提及」）`, en: `${charFull(c, 'en')} appears after death (${fmtDate(d, '日', 'en')}): ${when} "${a.ev.title}" (if only mentioned, set Part to 提及)` } });
+          msg: { zh: `${cname(db, c.id)} 在去世（${fmtDate(d, '日')}）之后出场：${when}「${a.ev.title}」（只是被提到的话，把「参与方式」填成「提及」）`, en: `${charFull(c, 'en')} appears after death (${fmtDate(d, '日', 'en')}): ${when} "${a.ev.title}" (if only mentioned, set Part to "mentioned")` } });
     }
   }
   for (const k of live(db, db.knowledge)) {
@@ -107,7 +107,7 @@ function decidedButOpen(db) {
       const list = (lang) => [...cols.map((k) => fieldName(k, lang)), ...extra].join(lang === 'en' ? ', ' : '、');
       if (cols.length || extra.length)
         out.push({ sev: 'info', code: 'C05', ...where(o), eventId: key === 'events' ? o.id : undefined, chars: key === 'characters' ? [o.id] : [o.char, o.a, o.b].filter(Boolean), dateMs: o.dateMs ?? null,
-          msg: { zh: `「${o._sheet}」第 ${o._row} 行（${o.id || o.name || ''}）状态是「${S.decidedStatus}」，但这些列还有未定标记：${list('zh')}`, en: `"${o._sheet}" row ${o._row} (${o.id || o.name || ''}) is "${S.decidedStatus}" but still has open markers in: ${list('en')}` } });
+          msg: { zh: `「${o._sheet}」第 ${o._row} 行（${o.id || o.name || ''}）状态是「${S.decidedStatus}」，但这些列还有未定标记：${list('zh')}`, en: `"${o._sheet}" row ${o._row} (${o.id || o.name || ''}) is "${vocabLabel('status', S.decidedStatus, 'en')}" but still has open markers in: ${list('en')}` } });
     }
   }
   return out;

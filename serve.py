@@ -1,14 +1,18 @@
 """Tiny local web server for the story dashboard (read-only static files, localhost only).
-Serves the "Creative Writing" folder so the dashboard can reach each novel's config and workbook."""
+Serves the folder that contains this dashboard folder, so books kept next to it (../my-novel/book.xlsx) can be read.
+Works whatever the dashboard folder is called (story-dashboard, storymatrix, storymatrix-main…)."""
 import http.server
 import os
 import socketserver
 import sys
+import urllib.parse
 import urllib.request
 import webbrowser
 
 PORT = 8765
-ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+APP = urllib.parse.quote(os.path.basename(HERE))
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -41,8 +45,8 @@ class Server(socketserver.ThreadingTCPServer):
 def is_dashboard(port):
     """True if something on this port already serves this dashboard (e.g. an earlier start.bat window)."""
     try:
-        with urllib.request.urlopen(f"http://127.0.0.1:{port}/story-dashboard/projects.json", timeout=2) as r:
-            return r.status == 200
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}/{APP}/index.html", timeout=2) as r:
+            return r.status == 200 and b"src/std/app.js" in r.read()
     except Exception:
         return False
 
@@ -50,7 +54,7 @@ def is_dashboard(port):
 if __name__ == "__main__":
     # 8765 first; if another program uses it, take the next free port instead of opening the wrong site
     for port in range(PORT, PORT + 20):
-        url = f"http://127.0.0.1:{port}/story-dashboard/index.html"
+        url = f"http://127.0.0.1:{port}/{APP}/index.html"
         try:
             srv = Server(("127.0.0.1", port), Handler)
             break

@@ -14,6 +14,20 @@ const text = (v) => (v == null ? '' : v instanceof Date ? v.toISOString().slice(
 export const splitMulti = (v) => text(v).split(MULTI).map((s) => s.trim()).filter(Boolean);
 const names = (def) => [def.zh, def.en, ...(def.aliases || [])];
 
+// Coded values (status, precision, part, direction): the stored code is the Chinese one; English words are accepted
+// on input and shown in the English UI. See schema.conventions.vocab.
+const VOCAB = schema.conventions.vocab;
+const VOCAB_IN = Object.fromEntries(
+  Object.entries(VOCAB).filter(([, v]) => typeof v === 'object').map(([kind, codes]) => [kind, new Map(Object.entries(codes).flatMap(([code, words]) => [code, ...words].map((w) => [norm(w), code])))]),
+);
+/** 'Decided' / 'decided' / '定' -> '定'; values outside the vocabulary are kept as written. */
+export const toCode = (kind, v) => {
+  const s = text(v);
+  return (s && VOCAB_IN[kind]?.get(norm(s))) || s;
+};
+/** '定' -> 'Decided' in English, '定' in Chinese. */
+export const vocabLabel = (kind, code, lang = 'zh') => (lang === 'en' && code ? VOCAB[kind]?.[code]?.[0] || code : code || '');
+
 function issue(db, sev, code, msg, extra = {}) {
   db.issues.push({ sev, code, msg, chars: [], ...extra });
 }
@@ -85,7 +99,9 @@ function readSettings(XLSX, wb, db, overrides) {
     if (k && text(r.raw.value) !== '') out[k] = text(r.raw.value);
   }
   for (const [k, v] of Object.entries(overrides || {})) if (v != null && v !== '') out[k] = String(v);
-  out.statusList = splitMulti(out.statusValues);
+  out.decidedStatus = toCode('status', out.decidedStatus);
+  out.droppedStatus = toCode('status', out.droppedStatus);
+  out.statusList = splitMulti(out.statusValues).map((v) => toCode('status', v));
   out.openMarkerList = splitMulti(out.openMarkers);
   return out;
 }
@@ -122,6 +138,10 @@ function coerce(f, v, row, db, ctx) {
       const n = parseFloat(v);
       return Number.isFinite(n) ? n : null;
     }
+    case 'status':
+      return toCode('status', v);
+    case 'enum':
+      return f.vocab ? toCode(f.vocab, v) : text(v);
     case 'bool':
       return /^(是|y|yes|true|1|主要|✓|√)$/i.test(text(v));
     case 'date': {
@@ -209,8 +229,8 @@ function resolveRefs(db) {
         const vals = f.type === 'refs' ? o[f.key] : o[f.key] ? [o[f.key]] : [];
         const fixed = [];
         for (const v of vals) {
-          // a placeholder such as 【缺】 or 待定 in an ID cell means "not decided yet", not a broken reference
-          if (/^【[^】]*】$/.test(v) || db.settings.openMarkerList.includes(v)) continue;
+          // a placeholder such as 【缺】, [TBD] or 待定 in an ID cell means "not decided yet", not a broken reference
+          if (/^【[^】]*】$|^\[[^\]]*\]$/.test(v) || db.settings.openMarkerList.includes(v)) continue;
           if (target.has(v)) {
             fixed.push(v);
             continue;

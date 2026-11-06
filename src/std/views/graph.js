@@ -1,6 +1,6 @@
 // Relationship map: characters as nodes, rows of the Relationships sheet as edges, optional co-appearance links.
 import { t, getLang } from '../i18n.js';
-import { isDropped, charLabel, charFull } from '../load.js';
+import { isDropped, charLabel, charFull, vocabLabel } from '../load.js';
 import { fmtDate } from '../dates.js';
 import { esc, categoryScale, byFrequency, legendHtml } from './common.js';
 
@@ -115,7 +115,7 @@ function edgeTip(db, d, lang) {
   const r = db.byId.relationships.get(d.rel);
   const when = [r.start?.ms != null ? fmtDate(r.start.ms, r.start.prec, lang) : '', r.end?.ms != null ? fmtDate(r.end.ms, r.end.prec, lang) : ''].filter(Boolean).join(' → ');
   const extra = Object.entries(r.extra || {}).map(([k, v]) => `<br><span style="opacity:.7">${esc(k)}:</span> ${esc(v)}`).join('');
-  return `<b>${nm(r.a)} ${r.direction === 'A→B' ? '→' : '—'} ${nm(r.b)}</b><br>${esc(r.type)}${r.status ? ` <span class="tag">${esc(r.status)}</span>` : ''}${when ? '<br>' + when : ''}${extra}${r.notes ? '<br>' + esc(r.notes) : ''}`;
+  return `<b>${nm(r.a)} ${r.direction === 'A→B' ? '→' : '—'} ${nm(r.b)}</b><br>${esc(r.type)}${r.status ? ` <span class="tag">${esc(vocabLabel('status', r.status, getLang()))}</span>` : ''}${when ? '<br>' + when : ''}${extra}${r.notes ? '<br>' + esc(r.notes) : ''}`;
 }
 
 export function relTableHtml(db, state) {
@@ -125,6 +125,6 @@ export function relTableHtml(db, state) {
   const extraCols = [...new Set(rels.flatMap((r) => Object.keys(r.extra || {})))];
   const nm = (id) => `<button class="link" data-profile="${esc(id)}">${esc(charFull(db.byId.characters.get(id), lang) || id)}</button>`;
   return `<table><thead><tr><th>ID</th><th>A</th><th></th><th>B</th><th>${t('f.type')}</th><th>${t('f.status')}</th>${extraCols.map((c) => `<th>${esc(c)}</th>`).join('')}<th>${t('f.notes')}</th></tr></thead><tbody>${rels
-    .map((r) => `<tr><td>${esc(r.id)}</td><td>${nm(r.a)}</td><td>${r.direction === 'A→B' ? '→' : '—'}</td><td>${nm(r.b)}</td><td>${esc(r.type)}</td><td>${esc(r.status || '')}</td>${extraCols.map((c) => `<td class="small">${esc(r.extra?.[c] || '')}</td>`).join('')}<td class="small">${esc(r.notes || '')}</td></tr>`)
+    .map((r) => `<tr><td>${esc(r.id)}</td><td>${nm(r.a)}</td><td>${r.direction === 'A→B' ? '→' : '—'}</td><td>${nm(r.b)}</td><td>${esc(r.type)}</td><td>${esc(vocabLabel('status', r.status, getLang()))}</td>${extraCols.map((c) => `<td class="small">${esc(r.extra?.[c] || '')}</td>`).join('')}<td class="small">${esc(r.notes || '')}</td></tr>`)
     .join('')}</tbody></table>`;
 }

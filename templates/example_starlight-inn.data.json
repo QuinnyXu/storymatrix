@@ -1,0 +1,93 @@
+{
+  "about": "English example data for tools/make_template.py. A tiny invented story (the English version of the Starlight Inn example) with a few deliberate conflicts (see the example notes in templates/README.md).",
+  "settings": { "title": "Starlight Inn (example)", "referenceDate": "2031-09-01" },
+  "characters": [
+    { "id": "C01", "name": "Lin Wan", "role": "Heroine · innkeeper", "main": "Yes", "group": "The Lins", "gender": "female", "birth": "1998-03-14", "profile": "Took over her grandmother's inn; sharp-tongued but soft-hearted, and afraid of the sea", "status": "Decided" },
+    { "id": "C02", "name": "Zhou Yu", "role": "Hero · painter", "main": "Yes", "group": "The Zhous", "gender": "male", "birth": "1996-11-02", "profile": "A painter in debt, hiding out in a little seaside town", "status": "Decided", "extra": { "Catchphrase": "The light's just right." } },
+    { "id": "C03", "name": "Granny", "role": "Lin Wan's grandmother", "main": "Yes", "group": "The Lins", "gender": "female", "birth": "1948", "profile": "Founded the inn; knows a great many old stories", "status": "Decided" },
+    { "id": "C04", "name": "Lin's father", "short": "Lin's father", "role": "Lin Wan's father (deceased)", "main": "No", "group": "The Lins", "gender": "male", "birth": "1970-05-20", "death": "2020-11-03", "status": "Decided" },
+    { "id": "C05", "name": "Xiaoman", "role": "Young helper at the inn", "main": "No", "group": "Townsfolk", "gender": "male", "birth": "2022-05-01", "status": "Tentative" },
+    { "id": "C06", "name": "Captain Chen", "role": "Antagonist · harbourmaster", "main": "Yes", "group": "Harbour Office", "gender": "male", "birth": "1968", "profile": "Wants to buy the inn; he was out at sea the night Lin's father vanished", "status": "Decided" },
+    { "id": "C07", "name": "Su Man", "role": "Supporting · gallery owner", "main": "No", "group": "The City", "gender": "female", "birth": "1997", "status": "Decided" },
+    { "id": "C08", "name": "Old Zhou", "role": "Zhou Yu's father", "main": "No", "group": "The Zhous", "gender": "male", "birth": "1966", "status": "Tentative" }
+  ],
+  "relationships": [
+    { "id": "R01", "a": "C01", "b": "C02", "type": "cool→lovers", "direction": "both", "strength": 3, "start": "2030-09-01", "chapter": "CH01", "status": "Decided" },
+    { "id": "R02", "a": "C03", "b": "C01", "type": "grandmother and granddaughter", "direction": "both", "strength": 3, "chapter": "CH01", "status": "Decided" },
+    { "id": "R03", "a": "C04", "b": "C01", "type": "father and daughter", "direction": "both", "strength": 2, "status": "Decided" },
+    { "id": "R04", "a": "C06", "b": "C04", "type": "old friends→enemies", "direction": "both", "strength": 2, "status": "Decided" },
+    { "id": "R05", "a": "C06", "b": "C01", "type": "pressures", "direction": "A→B", "strength": 2, "chapter": "CH05", "status": "Decided" },
+    { "id": "R06", "a": "C02", "b": "C07", "type": "exes", "direction": "both", "strength": 1, "end": "2029-12-31", "chapter": "CH04", "status": "Decided" },
+    { "id": "R07", "a": "C08", "b": "C02", "type": "father and son", "direction": "both", "strength": 2, "status": "Decided", "notes": "Why father and son don't get along [TBD]" },
+    { "id": "R08", "a": "C05", "b": "C01", "type": "like siblings", "direction": "both", "strength": 1, "status": "Decided" },
+    { "id": "R09", "a": "C07", "b": "C01", "type": "quiet rivalry", "direction": "A→B", "strength": 1, "status": "Proposed" },
+    { "id": "R10", "a": "C02", "b": "C06", "type": "rivals", "direction": "both", "strength": 1, "status": "Dropped", "notes": "From the old outline; scrapped" }
+  ],
+  "locations": [
+    { "id": "L01", "name": "Starlight Bay", "type": "town", "region": "local", "status": "Decided" },
+    { "id": "L02", "name": "Starlight Inn", "type": "building", "parent": "L01", "region": "local", "desc": "Three-storey timber house facing the sea", "status": "Decided" },
+    { "id": "L03", "name": "The Pier", "type": "outdoors", "parent": "L01", "region": "local", "status": "Decided" },
+    { "id": "L04", "name": "The Lighthouse", "type": "building", "parent": "L01", "region": "local", "status": "Decided" },
+    { "id": "L05", "name": "The City", "type": "city", "region": "away", "status": "Decided" },
+    { "id": "L06", "name": "City Gallery", "type": "building", "parent": "L05", "region": "away", "status": "Decided" },
+    { "id": "L07", "name": "At Sea", "type": "outdoors", "region": "away", "status": "Decided" }
+  ],
+  "events": [
+    { "id": "T01", "date": "2020-11-03", "precision": "day", "title": "Lin's father goes out to sea and never comes back", "chars": "C04, C06", "loc": "L07", "chapter": "CH04", "category": "flashback", "status": "Decided" },
+    { "id": "T02", "date": "2030-09-01", "title": "On a night of pouring rain, Zhou Yu walks into the Starlight Inn for the first time", "chars": "C01, C02", "loc": "L02", "chapter": "CH01", "category": "main", "status": "Decided" },
+    { "id": "T03", "date": "2030-10", "precision": "month", "title": "Zhou Yu paints the lighthouse every day", "chars": "C02", "loc": "L04", "chapter": "CH02", "category": "main", "status": "Decided" },
+    { "id": "T04", "date": "2031 Spring Festival", "title": "New Year's Eve dinner at the inn", "chars": "C01, C02, C03, C05", "loc": "L02", "chapter": "CH03", "category": "main", "status": "Decided" },
+    { "id": "T05", "date": "2031-01-23", "title": "Granny goes into hospital in the City", "chars": "C03", "loc": "L05", "chapter": "CH03", "category": "off-page", "status": "Tentative" },
+    { "id": "T06", "date": "spring 2031", "precision": "season", "title": "Su Man's gallery shows Zhou Yu's old paintings", "chars": "C07", "loc": "L06", "chapter": "CH04", "category": "main", "status": "Decided" },
+    { "id": "T07", "date": "2031-04-10", "title": "Zhou Yu slips back to the inn at night", "chars": "C01, C02", "loc": "L02", "chapter": "CH04", "category": "main", "status": "Proposed" },
+    { "id": "T08", "date": "2031-06-20", "title": "Granny dreams of Lin's father", "chars": "C03", "loc": "L02", "chapter": "CH05", "category": "main", "status": "Decided" },
+    { "id": "T09", "date": "2031-07", "precision": "month", "title": "Captain Chen turns up offering to buy the inn", "chars": "C06, C01, C09", "loc": "L02", "chapter": "CH05", "category": "main", "status": "Decided", "notes": "Offer price [TBD]" },
+    { "id": "T10", "date": "2031-09-30", "title": "Captain Chen claims he saw Lin's father at the lighthouse", "chars": "C06", "loc": "L04", "chapter": "CH06", "category": "main", "status": "Tentative" },
+    { "id": "T11", "date": "2031-10-01", "end": "2031-10-07", "title": "Storm week: the whole town loses power", "chars": "C01, C02, C03", "loc": "L01", "chapter": "CH06", "category": "main", "status": "Decided" },
+    { "id": "T12", "date": "2032 Spring Festival", "title": "Epilogue: Zhou Yu stays", "chars": "C01, C02, C03, C05", "loc": "L02", "chapter": "CH06", "category": "main", "status": "Decided" },
+    { "id": "T13", "timeNote": "Year TBD", "title": "The pact Lin's father and Captain Chen made when they were young", "chars": "C04, C06", "category": "backstory", "status": "Missing" },
+    { "id": "T14", "date": "about 2005", "title": "Granny opens the Starlight Inn", "chars": "C03", "loc": "L02", "category": "backstory", "status": "Inferred" }
+  ],
+  "appearances": [
+    { "event": "T02", "char": "C01", "action": "Wiping tables when she sees a soaked figure standing in the doorway", "part": "lead" },
+    { "event": "T02", "char": "C02", "action": "Pushes the door open and asks if there are any rooms left", "part": "lead" },
+    { "event": "T04", "char": "C02", "action": "Makes dumplings for the first time; they come out shaped like boats" },
+    { "event": "T04", "char": "C05", "action": "Sets off fireworks on the pier", "loc": "L03" },
+    { "event": "T06", "char": "C02", "action": "His paintings are on show; he isn't there himself", "part": "mentioned" },
+    { "event": "T07", "char": "C02", "action": "Knocks at the inn's back door" },
+    { "event": "T08", "char": "C04", "action": "Appears in Granny's dream", "part": "mentioned" },
+    { "event": "T10", "char": "C04", "action": "A figure on the lighthouse" },
+    { "event": "T11", "char": "C02", "action": "Helps Lin Wan fix the roof" },
+    { "event": "T12", "char": "C02", "action": "Hangs his lighthouse painting in the lobby" }
+  ],
+  "stays": [
+    { "char": "C02", "start": "2031-03-01", "end": "2031-05-31", "loc": "L05", "status": "Decided", "notes": "Back in the City dealing with his debts" },
+    { "char": "C07", "start": "2025-01-01", "end": "2032-12-31", "loc": "L05", "status": "Decided", "notes": "Lives in the City throughout" }
+  ],
+  "chapters": [
+    { "id": "CH01", "order": 1, "title": "The Night of the Storm", "part": "Part One", "storyTime": "2030-09", "pov": "C01", "summary": "A traveller arrives", "status": "draft" },
+    { "id": "CH02", "order": 2, "title": "The Lighthouse", "part": "Part One", "storyTime": "autumn 2030", "pov": "C02", "summary": "Zhou Yu paints the lighthouse and notices its light flashes one extra time every night", "status": "draft" },
+    { "id": "CH03", "order": 3, "title": "New Year's Eve Dinner", "part": "Part One", "storyTime": "2031 Spring Festival", "pov": "C01", "status": "outline" },
+    { "id": "CH04", "order": 4, "title": "Old Paintings", "part": "Part Two", "storyTime": "spring 2031", "pov": "C02/C01", "summary": "Zhou Yu leaves and comes back; memories of the night Lin's father went to sea", "status": "outline" },
+    { "id": "CH05", "order": 5, "title": "The Offer", "part": "Part Two", "storyTime": "summer 2031", "pov": "C01", "status": "outline" },
+    { "id": "CH06", "order": 6, "title": "After the Storm", "part": "Part Two", "storyTime": "2031-10 → 2032 Spring Festival", "pov": "C01", "status": "outline" }
+  ],
+  "foreshadowing": [
+    { "id": "F01", "content": "The lighthouse flashes one extra time every night", "planted": "CH02", "plan": "CH06", "paid": "CH06" },
+    { "id": "F02", "content": "An old painting rolled up in Zhou Yu's backpack", "planted": "CH01", "plan": "CH04", "paid": "CH04" },
+    { "id": "F03", "content": "The pill bottle by Granny's bed", "planted": "CH05", "plan": "Before the hospital stay", "paid": "CH03" },
+    { "id": "F04", "content": "The logbook Lin's father left behind", "planted": "CH04", "plan": "[TBD]" }
+  ],
+  "knowledge": [
+    { "id": "KS01", "secret": "Captain Chen was out at sea the night Lin's father vanished", "char": "C06", "when": "2020-11-03", "how": "Was there himself", "status": "Decided" },
+    { "id": "KS01", "secret": "Captain Chen was out at sea the night Lin's father vanished", "char": "C03", "when": "2021", "how": "One of Lin's father's old crew told her", "status": "Tentative" },
+    { "id": "KS01", "secret": "Captain Chen was out at sea the night Lin's father vanished", "char": "C01", "when": "2031-10-05", "how": "Granny tells her on the night of the storm", "status": "Decided" },
+    { "id": "KS02", "secret": "Zhou Yu is deeply in debt", "char": "C02", "when": "2029", "how": "", "status": "Decided" },
+    { "id": "KS02", "secret": "Zhou Yu is deeply in debt", "char": "C05", "when": "2019-06-01", "how": "Overheard it", "status": "Proposed" }
+  ],
+  "festivals": [
+    { "year": 2031, "name": "Spring Festival", "date": "2031-01-23" },
+    { "year": 2031, "name": "Mid-Autumn Festival", "date": "2031-10-01" },
+    { "year": 2032, "name": "Spring Festival", "date": "2032-02-11" }
+  ]
+}

@@ -12,6 +12,30 @@ export function ymd(y, m = 1, d = 1) {
 
 const SEASON = { 春: [4, 15], 夏: [7, 15], 秋: [10, 15], 冬: [12, 15], spring: [4, 15], summer: [7, 15], autumn: [10, 15], fall: [10, 15], winter: [12, 15] };
 const PART = { 初: 5, 上旬: 5, 中: 15, 中旬: 15, 底: 25, 末: 25, 下旬: 25 };
+const MONTH_RE = String.raw`(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.?`;
+const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const EN_PART = { early: '初', 'beginning of': '初', mid: '中', 'middle of': '中', late: '底', 'end of': '底' };
+const EN_MONTH_DATE = new RegExp(String.raw`^(?:(early|mid|middle of|late|end of|beginning of)[\s-]+)?(?:(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?)?${MONTH_RE}(?:\s+(\d{1,2})(?:st|nd|rd|th)?)?,?\s+(\d{1,4})$`, 'i');
+const EN_SEASON = /^(spring|summer|autumn|fall|winter)(?:\s+of)?,?\s+(\d{1,4})$/i;
+const EN_NAMED = /^([A-Za-z][A-Za-z'’ .-]*?),?\s+(?:of\s+)?(\d{1,4})$/;
+
+/** English word order -> the year-first form parsed below: "late March 2031" -> "2031-3 底", "spring 2031" -> "2031 spring",
+ *  "Christmas 2031" -> "2031 Christmas". Returns the input unchanged when it is not one of these. */
+function englishOrder(s) {
+  let m = EN_MONTH_DATE.exec(s);
+  if (m) {
+    const [, part, d1, mon, d2, y] = m;
+    const mm = MONTHS.indexOf(mon.slice(0, 3).toLowerCase()) + 1;
+    const d = d1 || d2;
+    return d ? `${y}-${mm}-${d}` : part ? `${y}-${mm} ${EN_PART[part.toLowerCase()]}` : `${y}-${mm}`;
+  }
+  m = EN_SEASON.exec(s);
+  if (m) return `${m[2]} ${m[1]}`;
+  m = EN_NAMED.exec(s);
+  if (m && !/^(bce?|ad|ce)$/i.test(m[1].trim())) return `${m[2]} ${m[1].trim()}`;
+  return s;
+}
 
 /**
  * Parse one date cell.
@@ -29,7 +53,7 @@ export function parseStoryDate(v, festivals = new Map()) {
   let s = String(v).trim();
   const raw = s;
   let approx = false;
-  const ap = /^(约|大约|约莫|circa|ca\.?|c\.)\s*/i.exec(s);
+  const ap = /^(约|大约|约莫|circa|ca\.|c\.|ca\b|c\b|about|around|approx\.?|approximately|~)\s*/i.exec(s);
   if (ap) {
     approx = true;
     s = s.slice(ap[0].length);
@@ -38,6 +62,21 @@ export function parseStoryDate(v, festivals = new Map()) {
     approx = true;
     s = s.replace(/(前后|左右)$/, '').trim();
   }
+  const decade = /^(?:the\s+)?(\d{2,3})0['’]?s$/i.exec(s);
+  if (decade) {
+    approx = true;
+    s = String(+decade[1] * 10 + 5);
+  }
+  // English era suffix (722 BC, 1066 AD) and English word order (late March 2031, spring 2031, Christmas 2031)
+  let bc = false;
+  const era = /(?<=[\d\s])(b\.?\s?c\.?(?:\s?e\.?)?|a\.?\s?d\.?|c\.?\s?e\.?)$/i.exec(s);
+  if (era && /\d$/.test(s.slice(0, era.index).trim())) {
+    bc = /^b/i.test(era[1]);
+    s = s.slice(0, era.index).trim();
+  }
+  s = s.replace(/^(AD|A\.D\.)\s*(?=\d)/i, '');
+  s = englishOrder(s);
+  if (bc) s = '前' + s;
   // year, with optional BC prefix (前 / 公元前 / BC) or a leading minus
   const ym = /^(公元前|前|BC\s*|-)?(\d{1,4})\s*年?/i.exec(s);
   if (!ym) return { error: 'format', text: raw };
@@ -60,7 +99,7 @@ export function parseStoryDate(v, festivals = new Map()) {
   }
   const fest = festivals.get(`${y}|${rest}`);
   if (fest != null) return out(fest, '日');
-  if (/^[\p{Script=Han}A-Za-z]+$/u.test(rest)) return { error: 'festival', text: raw };
+  if (/^[\p{Script=Han}A-Za-z][\p{Script=Han}A-Za-z'’ .-]*$/u.test(rest)) return { error: 'festival', text: raw };
   return { error: 'format', text: raw };
 }
 
@@ -99,7 +138,7 @@ export function fmtDate(ms, prec, lang = 'zh') {
     case '季':
       return lang === 'en' ? `${seasonEn} ${y}` : `${y} ${season}`;
     case '月':
-      return `${y}-${mm}`;
+      return lang === 'en' ? `${MONTH_NAMES[p.m - 1]} ${y}` : `${y}-${mm}`;
     default:
       return `${y}-${mm}-${String(p.d).padStart(2, '0')}`;
   }

@@ -1,6 +1,6 @@
 // Text outputs shared by the dashboard (download buttons) and the CLI (tools/storydb.mjs):
 // check report (Markdown), character chronicles (Markdown), normalized data (JSON).
-import { isDropped, ageAt, charFull, locName } from './load.js';
+import { isDropped, ageAt, charFull, locName, vocabLabel } from './load.js';
 import { fmtDate, iso } from './dates.js';
 
 const L = (lang, zh, en) => (lang === 'en' ? en : zh);
@@ -54,7 +54,7 @@ export function chronicleMarkdown(db, lang = 'zh', charIds = db.main) {
     const rels = db.relationships.filter((r) => !isDropped(db, r) && (r.a === id || r.b === id));
     if (rels.length) {
       out.push('', `${L(lang, '关系', 'Relationships')}:`);
-      for (const r of rels) out.push(`- ${charFull(db.byId.characters.get(r.a === id ? r.b : r.a), lang)}: ${r.type}${r.status ? ` [${r.status}]` : ''}`);
+      for (const r of rels) out.push(`- ${charFull(db.byId.characters.get(r.a === id ? r.b : r.a), lang)}: ${r.type}${r.status ? ` [${vocabLabel('status', r.status, lang)}]` : ''}`);
     }
     out.push('');
   }

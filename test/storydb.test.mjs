@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadStoryDb, mapColumns, SHEET } from '../src/std/load.js';
+import { loadStoryDb, mapColumns, SHEET, vocabLabel } from '../src/std/load.js';
 import { runChecks } from '../src/std/checks.js';
 import { parseStoryDate, iso, fmtDate } from '../src/std/dates.js';
 import { reportMarkdown, chronicleMarkdown, snapshotJson } from '../src/std/export.js';
@@ -102,6 +102,46 @@ const legacyLike = loadStoryDb(XLSX, book({ 人物: [['人物', '物种'], ['阿
 ok(legacyLike.issues.some((i) => i.code === 'missingColumn'), 'missing ID column is reported');
 ok(reportMarkdown(db, c).includes('C06') && chronicleMarkdown(db).includes('甲') && JSON.parse(snapshotJson(db, c)).appearances.length === db.apps.length, 'exports');
 
+console.log('English dates');
+const festEn = new Map([['2031|Christmas', Date.UTC(2031, 11, 25)], ['2031|Midsummer Eve', Date.UTC(2031, 5, 23)]]);
+const d = (s) => parseStoryDate(s, festEn);
+ok(iso(d('11 March 2031').ms) === '2031-03-11' && d('11 March 2031').prec === '日', 'day month year');
+ok(iso(d('March 11, 2031').ms) === '2031-03-11', 'month day, year');
+ok(d('Mar 2031').prec === '月' && iso(d('Mar 2031').ms) === '2031-03-15', 'month year');
+ok(iso(d('late March 2031').ms) === '2031-03-25' && iso(d('early Sept 2031').ms) === '2031-09-05', 'early / late month');
+ok(d('spring 2031').prec === '季' && d('Fall of 2031').prec === '季', 'season first');
+ok(iso(d('Christmas 2031').ms) === '2031-12-25' && iso(d('2031 Midsummer Eve').ms) === '2031-06-23', 'festival, either order, with spaces');
+ok(d('Easter 2031').error === 'festival', 'festival missing from the sheet');
+ok(['about 1850', 'c. 1850', 'circa 1850', '~1850'].every((s) => d(s).prec === '约' && iso(d(s).ms) === '1850-07-01'), 'circa forms');
+ok(d('1850s').prec === '约' && iso(d('1850s').ms) === '1855-07-01', 'decade');
+ok(fmtDate(d('722 BC').ms, '年', 'en') === '722 BC' && d('722 BCE').ms === d('前722').ms && d('March 722 BC').prec === '月', 'BC suffix');
+ok(d('1066 AD').ms === d('1066').ms, 'AD suffix');
+ok(fmtDate(d('March 2031').ms, '月', 'en') === 'March 2031', 'English month display');
+
+console.log('English workbook (English headers and values)');
+const enBook = {
+  Settings: [['Key', 'Value'], ['Title', 'Test']],
+  Characters: [['Character ID', 'Name', 'Birth date', 'Death date', 'Main', 'Status'], ['C01', 'Ann', '2000-01-01', '', 'Yes', 'Decided'], ['C02', 'Ben', '1990-01-01', '2010-01-01', 'Yes', 'decided'], ['C03', 'Cy', '', '', 'No', 'Dropped']],
+  Events: [
+    ['Event ID', 'Date', 'Precision', 'Event', 'Character IDs', 'Status', 'Notes'],
+    ['T01', '2020-05-01', 'day', 'Ann remembers Ben', 'C01', 'Decided', 'motive [TBD]'],
+    ['T02', 'spring 2021', '', 'Ben returns?', 'C02, [TBD]', 'Tentative', ''],
+  ],
+  Appearances: [['Event ID', 'Character ID', 'Part'], ['T01', 'C02', 'mentioned']],
+  Relationships: [['Relationship ID', 'Character A ID', 'Character B ID', 'Type', 'Direction', 'Status'], ['R01', 'C01', 'C02', 'crush', 'one-way', 'Proposed']],
+};
+const edb = loadStoryDb(XLSX, book(enBook));
+const ec2 = runChecks(edb);
+ok(edb.characters[0].status === '定' && edb.characters[1].status === '定' && edb.characters[2].status === '弃', 'status words -> codes, any case');
+ok(edb.main.join() === 'C01,C02', 'Yes/No main column');
+ok(edb.relationships[0].direction === 'A→B' && edb.relationships[0].status === '议', 'direction and status words');
+ok(edb.events[0].prec === '日' && edb.events[1].prec === '季', 'precision word and English season date');
+ok(edb.apps.find((a) => a.event === 'T01' && a.char === 'C02').mentioned, '"mentioned" part');
+ok(!codes(ec2).includes('badRef'), '[TBD] in an ID cell is a placeholder, not a broken reference');
+ok(ec2.findings.filter((f) => f.code === 'C01').length === 1, 'after-death check fires for T02 only (T01 is mentioned)');
+ok(codes(ec2).includes('C05') && ec2.findings.find((f) => f.code === 'C05').msg.en.includes('"Decided"'), '[TBD] in a Decided row, message in English');
+ok(vocabLabel('status', '弃', 'en') === 'Dropped' && vocabLabel('status', '弃', 'zh') === '弃' && vocabLabel('status', 'Locked', 'en') === 'Locked', 'labels for display');
+
 console.log('generated example workbook');
 const exPath = path.join(root, 'templates/示例_星河旅店.xlsx');
 if (fs.existsSync(exPath)) {
@@ -112,6 +152,15 @@ if (fs.existsSync(exPath)) {
   for (const code of ['C01', 'badRef', 'C06', 'C02', 'C03', 'C05']) ok(codes(ec).includes(code), `example shows ${code}`);
   ok(ex.relationships.find((r) => r.id === 'R10').status === '弃', 'dropped relationship kept for references');
 } else console.log('  skip (run tools/make_template.py first)');
+const exEnPath = path.join(root, 'templates/example_starlight-inn.xlsx');
+if (fs.existsSync(exEnPath) && fs.existsSync(exPath)) {
+  const zh = runChecks(loadStoryDb(XLSX, fs.readFileSync(exPath)));
+  const en = runChecks(loadStoryDb(XLSX, fs.readFileSync(exEnPath)));
+  const sig = (c) => c.findings.map((f) => `${f.code}:${f.eventId || ''}:${(f.chars || []).join('+')}`).sort().join(' ');
+  ok(sig(en) === sig(zh), 'English example finds the same problems as the Chinese one', `\n    zh ${sig(zh)}\n    en ${sig(en)}`);
+  const all = en.findings.map((f) => f.msg.en).join(' ');
+  ok(!/[㐀-鿿]/.test(all), 'English example: findings have no Chinese text');
+}
 
 console.log(`\n${n - failed}/${n} passed`);
 process.exit(failed ? 1 : 0);

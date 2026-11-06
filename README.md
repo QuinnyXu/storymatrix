@@ -6,13 +6,42 @@ Read-only: the tool never writes to the author's workbook. UI in 中文 / Englis
 
 把按标准模板填写的「故事数据库」Excel 变成交互式仪表盘：人物时间线（事件 + 地点）、人物档案、关系图、自动检查。只读，不会改你的工作簿。
 
+## Quick start for writers (English)
+
+Everything runs on your own computer. Nothing is uploaded, and the tool never changes your workbook.
+
+1. **Get it.** On GitHub, click **Code → Download ZIP** and unzip it anywhere (or `git clone` it).
+2. **Install Python 3** if you don't have it: [python.org/downloads](https://www.python.org/downloads/). On Windows,
+   tick "Add Python to PATH" in the installer.
+3. **Start it.** Windows: double-click **`start.bat`**. Mac: double-click **`start.command`** (the first time, right-click
+   it and choose **Open**; if macOS still refuses, open Terminal in the folder and run `python3 serve.py`).
+   A browser tab opens at `http://127.0.0.1:8765/…`. Keep the small black window open while you use the dashboard.
+4. **Look at the example.** Pick **Example: Starlight Inn**. It is a tiny made-up story with a few deliberate
+   mistakes, so the **Checks** tab has something to show.
+5. **Start your own book.** Copy `templates/StoryDB_template_en.xlsx`, rename it, and fill in **Characters** and
+   **Events** (the other sheets are optional). Hover a column header in Excel to see how to fill it.
+   Then click **Open file…** or drag the workbook onto the dashboard. In Chrome or Edge, the dashboard re-reads the
+   file a few seconds after you save it in Excel. In Safari or Firefox, click **Reload**, or list the book in
+   `projects.json` (see "Books" below).
+
+Handy to know:
+- Status words: **Decided, Tentative, Proposed, Missing, Inferred, Dropped**. Never delete a row; set it to Dropped.
+- Not sure yet? Write **[TBD]** in the text, or even in an ID cell. It is treated as "to be decided", not as an error.
+- Dates can be loose: `2031-07-11`, `11 March 2031`, `late March 2031`, `spring 2031`, `about 1850`, `1850s`, `722 BC`.
+- Several IDs in one cell: `C01, C02`. In Appearances, Part = **lead / present / mentioned** (mentioned = talked
+  about but not there, so a dead character can be mentioned without an error).
+- Docs: [field reference](templates/field-reference_en.md) (every sheet and column) and
+  [conversion guide](templates/conversion-guide_en.md) (if you already keep your story in a spreadsheet).
+- The UI follows your browser's language; the **中文 / EN** button switches it.
+
 ## Start / 启动
 
-Double-click **`start.bat`** (needs Python 3). It serves the `Creative Writing` folder on `127.0.0.1:8765` and opens the
-dashboard. Pick a book from the list, click **打开文件… / Open file…**, or drag an `.xlsx` onto the window.
-Keep editing in Excel; when you save, the dashboard re-reads the file within a few seconds.
+Double-click **`start.bat`** (Windows) or **`start.command`** (Mac/Linux); needs Python 3. It serves the folder that
+contains this dashboard folder on `127.0.0.1:8765` (or the next free port) and opens the dashboard. Pick a book from
+the list, click **打开文件… / Open file…**, or drag an `.xlsx` onto the window. Keep editing in Excel; when you save,
+the dashboard re-reads the file within a few seconds.
 
-双击 `start.bat`。在右上角选作品，或「打开文件…」，或把 .xlsx 拖进窗口。照常在 Excel 里改，保存后几秒内自动刷新。
+双击 `start.bat`（Mac 用 `start.command`）。在右上角选作品，或「打开文件…」，或把 .xlsx 拖进窗口。照常在 Excel 里改，保存后几秒内自动刷新。
 
 ## The template / 模板
 
@@ -20,14 +49,20 @@ Keep editing in Excel; when you save, the dashboard re-reads the file within a f
 |---|---|
 | `templates/故事数据库模板.xlsx` | Blank template (Chinese headers). Copy it for a new book. 空白模板，新书复制一份开始填 |
 | `templates/StoryDB_template_en.xlsx` | Same template with English headers |
-| `templates/示例_星河旅店.xlsx` | A small filled-in example with a few deliberate conflicts 填好的示例（故意留了几处冲突） |
-| `templates/字段说明.md` / `field-reference_en.md` | Every sheet and column, generated from the schema 每张表、每列的说明 |
-| `templates/转换指南.md` | How to convert an existing workbook (ID-based or one-column-per-character) 现有工作簿怎么转换 |
+| `templates/example_starlight-inn.xlsx` | A small filled-in example in English, with a few deliberate conflicts |
+| `templates/示例_星河旅店.xlsx` | The same example in Chinese 填好的示例（故意留了几处冲突） |
+| `templates/field-reference_en.md` / `字段说明.md` | Every sheet and column, generated from the schema 每张表、每列的说明 |
+| `templates/conversion-guide_en.md` / `转换指南.md` | How to convert an existing workbook (ID-based or one-column-per-character) 现有工作簿怎么转换 |
 
 Sheets: **人物** and **事件** are required; 出场, 行踪, 关系, 地点, 章节, 场景, 伏笔, 知情台账, 节日 and 设置 are optional.
 Every sheet starts with an ID column, and other sheets refer to rows by ID (e.g. `涉及人物ID = C01、C02`). Columns are
 matched by name or alias, so authors can reorder and add columns. In the template, headers have hover notes, ID
 columns have dropdowns, and grey "(auto)" columns show the name for each ID.
+
+Coded values (status, date precision, participation, direction, yes/no) are stored as the codes in
+`schema.conventions.vocab` (定, 日, 提及…), and the English words listed there (Decided, day, mentioned…) are accepted
+too, in any case. The English template's dropdowns use the English words. Both templates read the same way, and a
+workbook may mix Chinese and English headers and values. 状态等取值中英文都认。
 
 `schema/storydb.schema.json` is the single source of truth: the template generator, the dashboard, the checks and the
 field reference all read it. To add a column or an alias, edit the schema, then regenerate:
@@ -36,12 +71,18 @@ field reference all read it. To add a column or an alias, edit the schema, then 
 python tools/make_template.py --force                 # templates/故事数据库模板.xlsx
 python tools/make_template.py --lang en --force       # templates/StoryDB_template_en.xlsx
 python tools/make_template.py --data templates/示例_星河旅店.data.json --out templates/示例_星河旅店.xlsx --force
-node tools/storydb.mjs fields > templates/字段说明.md
+python tools/make_template.py --lang en --data templates/example_starlight-inn.data.json --out templates/example_starlight-inn.xlsx --force
+npm run fields                                        # templates/字段说明.md and field-reference_en.md
 ```
+
+(`npm run templates` runs all four template builds; it needs `pip install openpyxl`.)
 
 ## Books / 作品列表
 
-Copy `projects.example.json` to `projects.json` and list your books there (paths relative to this folder).
+Copy `projects.example.json` to `projects.json` and list your books there (paths relative to this folder). The local
+server only serves the folder that contains the dashboard folder, so keep your books next to it, for example
+`Writing/storymatrix/` and `Writing/my-novel/book.xlsx` with the path `../my-novel/book.xlsx`. Use **Open file…** for
+a workbook anywhere else.
 `projects.json` is git-ignored, so your book list stays private. Optional `settings` override the workbook's 设置
 sheet. An entry with `link` opens another page instead of a workbook. Without a `projects.json`, the picker shows the
 example.

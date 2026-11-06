@@ -51,19 +51,28 @@ function load(t) {
 function fieldsMarkdown() {
   const L = (zh, en) => (lang === 'en' ? en : zh);
   const out = [`# ${L('故事数据库模板 · 字段说明', 'StoryDB template · field reference')} (v${schema.version})`, '', schema.about[lang], '', `${L('日期写法', 'Dates')}: ${schema.conventions.dateGrammar[lang]}`, ''];
-  out.push(`${L('状态取值', 'Status values')}: ${schema.conventions.statusValues.map((v) => `${v} = ${schema.conventions.statusLabels[v][lang]}`).join(' · ')}`, '');
+  const V = schema.conventions.vocab;
+  const words = (kind, codes) => codes.map((c) => (lang === 'en' ? V[kind][c][0] : c));
+  out.push(lang === 'en'
+    ? `Status values: ${words('status', schema.conventions.statusValues).join(', ')}. Coded columns (Status, Precision, Part, Direction) also accept the codes used in the Chinese template.`
+    : `状态取值: ${schema.conventions.statusValues.map((v) => `${v} = ${schema.conventions.statusLabels[v].zh}`).join(' · ')}（英文 ${words('status', schema.conventions.statusValues).join(' / ')} 也认）`, '');
+  const en = lang === 'en';
+  const latin = (list) => (en ? (list || []).filter((a) => /^[\x20-\x7e]+$/.test(a)) : list || []);
+  const sep = en ? ', ' : '、';
+  if (en) out.push('Sheet and column names from the Chinese template are read the same way, so a workbook may mix both.', '');
   for (const s of schema.sheets) {
-    out.push(`## ${s.zh} / ${s.en}${s.required ? L('（必需）', ' (required)') : L('（可选）', ' (optional)')}`, '', s.desc[lang], '');
-    if (s.aliases.length) out.push(`${L('也认作', 'Also recognised as')}: ${s.aliases.join('、')}`, '');
-    out.push(`| ${L('列名', 'Column')} | ${L('英文列名', 'English')} | ${L('类型', 'Type')} | ${L('必填', 'Req.')} | ${L('说明', 'Notes')} | ${L('也认作', 'Aliases')} |`, '|---|---|---|---|---|---|');
+    out.push(en ? `## ${s.en}${s.required ? ' (required)' : ' (optional)'}` : `## ${s.zh} / ${s.en}${s.required ? '（必需）' : '（可选）'}`, '', s.desc[lang], '');
+    if (latin(s.aliases).length) out.push(`${L('也认作', 'Also recognised as')}: ${latin(s.aliases).join(sep)}`, '');
+    out.push(en ? '| Column | Type | Req. | Notes | Also accepted |' : '| 列名 | 英文列名 | 类型 | 必填 | 说明 | 也认作 |', en ? '|---|---|---|---|---|' : '|---|---|---|---|---|---|');
     for (const f of s.fields) {
-      const type = f.auto ? L('公式（自动）', 'formula (auto)') : f.ref ? `${f.type} → ${schema.sheets.find((x) => x.key === f.ref).zh}` : f.type;
-      const note = [f.desc?.[lang], f.enum ? f.enum.join(' / ') : ''].filter(Boolean).join(' · ');
-      out.push(`| ${f.zh} | ${f.en} | ${type} | ${f.required ? '✓' : ''} | ${note} | ${(f.aliases || []).join('、')} |`);
+      const type = f.auto ? L('公式（自动）', 'formula (auto)') : f.ref ? `${f.type} → ${schema.sheets.find((x) => x.key === f.ref)[lang]}` : f.type;
+      const values = f.type === 'status' ? words('status', schema.conventions.statusValues) : en && f.enumEn ? f.enumEn : f.vocab ? words(f.vocab, f.enum) : f.enum;
+      const note = [f.desc?.[lang], values && !(f.desc?.[lang] || '').startsWith(values.join(' / ')) ? values.join(' / ') : ''].filter(Boolean).join(' · ');
+      out.push(en ? `| ${f.en} | ${type} | ${f.required ? '✓' : ''} | ${note} | ${latin(f.aliases).join(sep)} |` : `| ${f.zh} | ${f.en} | ${type} | ${f.required ? '✓' : ''} | ${note} | ${(f.aliases || []).join('、')} |`);
     }
     if (s.settings) {
       out.push('', `| ${L('项目', 'Key')} | ${L('默认', 'Default')} | ${L('说明', 'Notes')} |`, '|---|---|---|');
-      for (const k of s.settings) out.push(`| ${k.zh} (${k.en}) | ${k.default} | ${k.desc[lang]} |`);
+      for (const k of s.settings) out.push(en ? `| ${k.en} | ${k.defaultEn || k.default} | ${k.desc.en} |` : `| ${k.zh} (${k.en}) | ${k.default} | ${k.desc.zh} |`);
     }
     out.push('');
   }

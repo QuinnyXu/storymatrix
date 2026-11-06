@@ -1,6 +1,6 @@
 // HTML panels: overview, character profile, checks list.
 import { t, getLang } from '../i18n.js';
-import { schema, isDropped, ageAt, charFull, charLabel, locName } from '../load.js';
+import { schema, isDropped, ageAt, charFull, charLabel, locName, vocabLabel } from '../load.js';
 import { fmtDate } from '../dates.js';
 import { esc } from './common.js';
 
@@ -25,7 +25,7 @@ export function overviewHtml(db, checks) {
   const statusMix = [...db.settings.statusList, '']
     .map((s) => [s, db.events.filter((e) => (e.status || '') === s).length])
     .filter(([, n]) => n)
-    .map(([s, n]) => `<span class="tag">${esc(s || t('color.none'))} ${n}</span>`)
+    .map(([s, n]) => `<span class="tag">${esc(vocabLabel('status', s, lang) || t('color.none'))} ${n}</span>`)
     .join(' ');
 
   const mainList = db.main.map((id) => `<button class="link" data-profile="${esc(id)}">${esc(charFull(db.byId.characters.get(id), lang))}</button>`).join(' ');
@@ -34,14 +34,14 @@ export function overviewHtml(db, checks) {
     .map((s) => {
       const f = db.sheets[s.key];
       const status = f ? t('o.found', { name: esc(f.name), n: f.columns.length }) : `<span class="muted">${t('o.missing')}</span>`;
-      const extra = f?.extra?.length ? `<div class="small muted">${t('o.extra', { cols: esc(f.extra.join('、')) })}</div>` : '';
+      const extra = f?.extra?.length ? `<div class="small muted">${t('o.extra', { cols: esc(f.extra.join(t('sep'))) })}</div>` : '';
       return `<tr><td><b>${esc(s[lang])}</b>${s.required ? ' *' : ''}<div class="small muted">${esc(s.desc[lang])}</div></td><td>${status}${extra}</td></tr>`;
     })
     .join('');
 
   const undated = db.events.filter((e) => e.dateMs == null && !isDropped(db, e));
   const undatedHtml = undated.length
-    ? `<table><tbody>${undated.map((e) => `<tr class="click" data-event="${esc(e.id)}"><td>${esc(e.id)}</td><td>${esc(e.title)}</td><td class="small muted">${esc(e.timeNote || '')}</td><td class="small">${esc((e.chars || []).map((c) => charLabel(db.byId.characters.get(c), lang) || c).join('、'))}</td></tr>`).join('')}</tbody></table>`
+    ? `<table><tbody>${undated.map((e) => `<tr class="click" data-event="${esc(e.id)}"><td>${esc(e.id)}</td><td>${esc(e.title)}</td><td class="small muted">${esc(e.timeNote || '')}</td><td class="small">${esc((e.chars || []).map((c) => charLabel(db.byId.characters.get(c), lang) || c).join(t('sep')))}</td></tr>`).join('')}</tbody></table>`
     : `<p class="muted">${t('none')}</p>`;
 
   const open = db.foreshadowing.filter((f) => !f.paid);
@@ -86,7 +86,7 @@ export function profileHtml(db, checks, charId) {
     [t('f.died'), c.death?.ms != null ? fmtDate(c.death.ms, c.death.prec, lang) : ''],
     [lang === 'en' ? 'Identity' : '身份', esc(c.identity || '')],
     [lang === 'en' ? 'First chapter' : '首次出场章', esc(c.firstChapter || '')],
-    [t('f.status'), esc(c.status || '')],
+    [t('f.status'), esc(vocabLabel('status', c.status, lang))],
     [lang === 'en' ? 'Profile' : '简介', esc(c.profile || '')],
     [t('f.notes'), esc(c.notes || '')],
     ...Object.entries(c.extra || {}).map(([k, v]) => [esc(k), esc(v)]),
@@ -116,7 +116,7 @@ export function profileHtml(db, checks, charId) {
           const other = r.a === c.id ? r.b : r.a;
           const arrow = r.direction === 'A→B' ? (r.a === c.id ? '→' : '←') : '—';
           const extra = Object.entries(r.extra || {}).map(([k, v]) => `<div class="small muted">${esc(k)}: ${esc(v)}</div>`).join('');
-          return `<tr><td>${arrow}</td><td><button class="link" data-profile="${esc(other)}">${esc(charFull(db.byId.characters.get(other), lang) || other)}</button></td><td>${esc(r.type)}${r.status ? ` <span class="tag">${esc(r.status)}</span>` : ''}${extra}${r.notes ? `<div class="small">${esc(r.notes)}</div>` : ''}</td></tr>`;
+          return `<tr><td>${arrow}</td><td><button class="link" data-profile="${esc(other)}">${esc(charFull(db.byId.characters.get(other), lang) || other)}</button></td><td>${esc(r.type)}${r.status ? ` <span class="tag">${esc(vocabLabel('status', r.status, lang))}</span>` : ''}${extra}${r.notes ? `<div class="small">${esc(r.notes)}</div>` : ''}</td></tr>`;
         })
         .join('')}</tbody></table>`
     : `<p class="muted">${t('none')}</p>`;

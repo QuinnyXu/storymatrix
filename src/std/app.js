@@ -1,5 +1,5 @@
 // StoryDB dashboard: pick a book (projects.json, else projects.example.json), a local file, or drop an .xlsx; read it (never write); render.
-import { t, getLang, setLang, label, LANGS } from './i18n.js';
+import { t, getLang, setLang, label, LANGS, browserLang } from './i18n.js';
 import { loadStoryDb, isDropped, charFull } from './load.js';
 import { runChecks } from './checks.js';
 import { reportMarkdown, chronicleMarkdown, snapshotJson } from './export.js';
@@ -122,7 +122,7 @@ function banner(html, isError = false) {
 function showError(e) {
   let msg;
   if (e.code === 'FETCH') msg = t('err.fetch', { url: decodeURIComponent(e.url) });
-  else if (e.code === 'NOT_STORYDB') msg = t('err.notStorydb', { sheets: e.sheets.join('、') });
+  else if (e.code === 'NOT_STORYDB') msg = t('err.notStorydb', { sheets: e.sheets.join(t('sep')) });
   else msg = t('err.generic', { msg: e.message });
   banner(`<b>${t('err.title')}</b><br>${esc(msg)}`, true);
   console.error(e);
@@ -141,7 +141,8 @@ function applyStaticText() {
   sel.innerHTML = `<option value="">${t(project || !source ? 'project.pick' : 'project.file')}</option>` + projects.map((p) => `<option value="${esc(p.id)}" ${project?.id === p.id ? 'selected' : ''}>${esc(label(p.title))}</option>`).join('');
 }
 
-const fmtTime = (ms) => new Date(ms).toLocaleString(getLang() === 'zh' ? 'zh-CN' : 'en-GB', { hour12: false });
+// English: the browser's own locale, with the month spelled out so 05/11 is never ambiguous
+const fmtTime = (ms) => new Date(ms).toLocaleString(getLang() === 'zh' ? 'zh-CN' : undefined, getLang() === 'zh' ? { hour12: false } : { dateStyle: 'medium', timeStyle: 'short' });
 
 function render() {
   applyStaticText();
@@ -434,7 +435,7 @@ window.addEventListener('error', (e) => banner(`<b>${t('err.title')}</b><br>${es
 window.addEventListener('unhandledrejection', (e) => banner(`<b>${t('err.title')}</b><br>${esc(e.reason?.message || e.reason)}`, true));
 
 async function start() {
-  setLang(store('lang') || 'zh');
+  setLang(store('lang') || browserLang());
   if (store('theme')) document.documentElement.dataset.theme = store('theme');
   if (store('auto') === '0') $('#chkAuto').checked = false;
   await loadProjects();

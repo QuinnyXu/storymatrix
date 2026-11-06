@@ -23,8 +23,8 @@ const S = {
   'src.changed': ['文件已更新，已重新读取', 'File changed, reloaded'],
   'drop.hint': ['松开鼠标，读取这个工作簿（只读）', 'Drop to read this workbook (read-only)'],
   'err.title': ['读取失败', 'Could not load'],
-  'err.fetch': ['读不到文件：{url}。用「打开文件…」直接选它，或确认是用 start.bat 打开的。', 'Cannot fetch {url}. Use "Open file…", or start the dashboard with start.bat.'],
-  'err.notStorydb': ['这个工作簿不是故事数据库模板格式（找到的表：{sheets}）。请按 templates/转换指南.md 转换。', 'This workbook is not in StoryDB format (sheets: {sheets}). Convert it with templates/转换指南.md.'],
+  'err.fetch': ['读不到文件：{url}。用「打开文件…」直接选它，或确认是用 start.bat 打开的。', 'Cannot fetch {url}. Check the path in projects.json (books must be inside the folder that holds the dashboard folder), use "Open file…", or start the dashboard with start.bat (Windows) / start.command (Mac).'],
+  'err.notStorydb': ['这个工作簿不是故事数据库模板格式（找到的表：{sheets}）。请按 templates/转换指南.md 转换。', 'This workbook is not in StoryDB format (sheets: {sheets}). Start from templates/StoryDB_template_en.xlsx, or convert it with templates/conversion-guide_en.md.'],
   'err.generic': ['出错了：{msg}', 'Error: {msg}'],
   'tab.overview': ['概览', 'Overview'],
   'tab.timeline': ['人物时间线', 'Timeline'],
@@ -120,12 +120,15 @@ const S = {
   'o.main.auto': ['按出场次数自动选出，可在「设置」或「人物.主要人物」里指定', 'picked by activity; set them in Settings or the Main column'],
   'o.statusMix': ['事件状态', 'Event status'],
   'none': ['无', 'none'],
+  'sep': ['、', ', '],
 };
 
 let lang = 'zh';
 export const LANGS = ['zh', 'en'];
 export const getLang = () => lang;
 export const setLang = (l) => (lang = LANGS.includes(l) ? l : 'zh');
+/** Chinese for a Chinese browser, English for everyone else. */
+export const browserLang = () => (/^zh/i.test(globalThis.navigator?.language || '') ? 'zh' : 'en');
 export function t(key, params = {}) {
   const v = S[key];
   let s = v ? v[lang === 'en' ? 1 : 0] : key;

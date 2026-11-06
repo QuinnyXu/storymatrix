@@ -53,20 +53,43 @@ TXT = {
     },
     "en": {
         "readme": "README", "noid": "⚠ no such ID", "required": "required", "optional": "optional", "auto": "auto (formula, do not type)",
-        "ref": "an ID from the {sheet} sheet", "refs": "IDs from the {sheet} sheet, separated by 、 or commas", "type": "type",
+        "ref": "an ID from the {sheet} sheet", "refs": "IDs from the {sheet} sheet, separated by commas", "type": "type",
         "how": [
             "How to use",
-            "1. The first column of each sheet is an ID (C01, L01, T01, CH01). Never change or reuse an ID; to drop a row set Status to 弃 instead of deleting it.",
+            "1. The first column of each sheet is an ID (C01, L01, T01, CH01). Never change or reuse an ID; to drop a row set Status to Dropped instead of deleting it.",
             "2. Dark-blue header = required; light blue = optional; grey '(auto)' = formula that shows the name for an ID. Hover a header to see how to fill it.",
             "3. Cells with a dropdown can be picked from the list (character IDs, location IDs, status…) or typed.",
-            "4. Several IDs in one cell: C01、C02 (or commas).",
+            "4. Several IDs in one cell: C01, C02.",
             "5. Add any new columns you like (the dashboard shows them in the details) and reorder freely; do not rename existing headers.",
             "6. Delete sheets you don't need; Characters and Events are required.",
             "7. Appearances records what each character does in each event and where; if you only need who is there, Events → Character IDs is enough.",
+            "8. Not decided yet? Write [TBD] in the text (or in an ID cell) and set Status to Tentative or Proposed; the Checks view lists what is still open.",
         ],
         "sheets": "Sheets", "col_sheet": "Sheet", "col_desc": "Purpose",
     },
 }
+
+
+VOCAB = SCHEMA["conventions"]["vocab"]
+
+
+def enum_values(f, lang):
+    """Dropdown values: the stored codes in Chinese, the English words in English (the dashboard accepts both)."""
+    if f.get("type") == "status":
+        codes = SCHEMA["conventions"]["statusValues"]
+        return codes if lang == "zh" else [VOCAB["status"][c][0] for c in codes]
+    if lang == "en" and f.get("enumEn"):
+        return f["enumEn"]
+    if lang == "en" and f.get("vocab"):
+        return [VOCAB[f["vocab"]][c][0] for c in f["enum"]]
+    return f.get("enum")
+
+
+def status_line(lang):
+    codes = SCHEMA["conventions"]["statusValues"]
+    if lang == "zh":
+        return " · ".join(f"{v} = {SCHEMA['conventions']['statusLabels'][v]['zh']}" for v in codes)
+    return ", ".join(VOCAB["status"][v][0] for v in codes) + " (Dropped rows are hidden but their IDs still work)"
 
 
 def layout(sheet):
@@ -108,13 +131,15 @@ def note_for(f, lang):
     if f.get("desc"):
         parts.append(f["desc"][lang])
     if f.get("enum"):
-        parts.append(" / ".join(f["enum"]))
+        parts.append(" / ".join(enum_values(f, lang)))
     if f.get("type") == "date":
         parts.append(SCHEMA["conventions"]["dateGrammar"][lang])
     if f.get("type") == "status":
-        parts.append(" · ".join(f"{v} = {SCHEMA['conventions']['statusLabels'][v][lang]}" for v in SCHEMA["conventions"]["statusValues"]))
+        parts.append(status_line(lang))
     if f.get("aliases"):
-        parts.append(("也认：" if lang == "zh" else "Also read as: ") + "、".join(f["aliases"]))
+        aliases = f["aliases"] if lang == "zh" else [a for a in f["aliases"] if a.isascii()]
+        if aliases:
+            parts.append(("也认：" if lang == "zh" else "Also read as: ") + ("、" if lang == "zh" else ", ").join(aliases))
     return "\n".join(parts)
 
 
@@ -143,7 +168,6 @@ def write_header(ws, sheet, lang):
 
 
 def add_validations(ws, sheet, lang, nrows):
-    statuses = ",".join(SCHEMA["conventions"]["statusValues"])
     for i, f in enumerate(layout(sheet), start=1):
         if f.get("auto"):
             continue
@@ -151,10 +175,8 @@ def add_validations(ws, sheet, lang, nrows):
         formula = None
         if f.get("type") == "ref" and not f.get("lenient"):
             formula = f"{qname(f['ref'], lang)}!$A$2:$A$3000"
-        elif f.get("type") == "status":
-            formula = f'"{statuses}"'
-        elif f.get("enum"):
-            formula = '"' + ",".join(f["enum"]) + '"'
+        elif f.get("type") == "status" or f.get("enum"):
+            formula = '"' + ",".join(enum_values(f, lang)) + '"'
         if not formula:
             continue
         # warning style: the author may still type a value that is not in the list
@@ -172,7 +194,7 @@ def build(lang, data, nrows):
     title = (data or {}).get("settings", {}).get("title") or ("故事数据库" if lang == "zh" else "Story database")
     lines = [title, f"StoryDB v{SCHEMA['version']}", "", SCHEMA["about"][lang], "", *T["how"], "",
              ("日期写法：" if lang == "zh" else "Dates: ") + SCHEMA["conventions"]["dateGrammar"][lang], "",
-             ("状态：" if lang == "zh" else "Status: ") + " · ".join(f"{v} = {SCHEMA['conventions']['statusLabels'][v][lang]}" for v in SCHEMA["conventions"]["statusValues"]),
+             ("状态：" if lang == "zh" else "Status: ") + status_line(lang),
              "", T["sheets"]]
     for i, line in enumerate(lines, start=1):
         c = rd.cell(row=i, column=1, value=line)
@@ -196,7 +218,8 @@ def build(lang, data, nrows):
             given = (data or {}).get("settings", {})
             for i, st in enumerate(s["settings"], start=2):
                 ws.cell(row=i, column=1, value=st[lang])
-                ws.cell(row=i, column=2, value=given.get(st["key"], st["default"]))
+                default = st.get("defaultEn", st["default"]) if lang == "en" else st["default"]
+                ws.cell(row=i, column=2, value=given.get(st["key"], default))
                 ws.cell(row=i, column=3, value=st["desc"][lang]).font = Font(color="52514E")
             continue
         for ri, row in enumerate(rows, start=2):

@@ -1,6 +1,6 @@
 // Character swimlanes (one lane per character, x = story date) and the narrative-order chart.
 import { t, getLang } from '../i18n.js';
-import { isDropped, ageAt, charLabel, charFull, locName } from '../load.js';
+import { isDropped, ageAt, charLabel, charFull, locName, vocabLabel } from '../load.js';
 import { fmtDate, DAY, parts, yearLabel, parseStoryDate } from '../dates.js';
 import { esc, categoryScale, byFrequency, legendHtml } from './common.js';
 
@@ -26,7 +26,7 @@ export function colorKeyFn(db, mode) {
 export function colorScale(db, mode, th) {
   const key = colorKeyFn(db, mode);
   const ordered = mode === 'status' ? [...db.settings.statusList] : byFrequency(db.apps.map(key));
-  const labelOf = mode === 'location' ? (k) => locName(db, k) : (k) => k || t('color.none');
+  const labelOf = mode === 'location' ? (k) => locName(db, k) : mode === 'status' ? (k) => vocabLabel('status', k, getLang()) || t('color.none') : (k) => k || t('color.none');
   const scale = categoryScale(ordered, th, labelOf);
   return { key, scale };
 }
@@ -158,7 +158,7 @@ export function appHtml(db, a, lang, withTitle) {
     a.locId ? `${t('f.location')}: ${esc(locName(db, a.locId))} <span class="tag">${t('loc.' + a.locSource)}</span>` : '',
     a.action ? `${t('f.action')}: ${esc(a.action)}` : '',
     ch ? `${t('f.chapter')}: ${esc(ch.id)} ${esc(ch.title || '')}` : e.chapter ? `${t('f.chapter')}: ${esc(e.chapter)}` : '',
-    e.status ? `${t('f.status')}: ${esc(e.status)}` : '',
+    e.status ? `${t('f.status')}: ${esc(vocabLabel('status', e.status, getLang()))}` : '',
   ];
   return lines.filter(Boolean).join('<br>');
 }
@@ -170,10 +170,10 @@ export function eventDetailHtml(db, checks, eventId, lang) {
   const ch = db.byId.chapters.get(e.chapter);
   const kv = [
     [t('f.date'), `${fmtDate(e.dateMs, e.prec, lang)}${e.end?.ms != null ? ' → ' + fmtDate(e.end.ms, e.end.prec, lang) : ''}${e.timeNote ? ` · ${esc(e.timeNote)}` : ''}`],
-    [t('f.location'), esc((e.loc || []).map((id) => locName(db, id)).join('、'))],
+    [t('f.location'), esc((e.loc || []).map((id) => locName(db, id)).join(t('sep')))],
     [t('f.chapter'), ch ? `${esc(ch.id)} ${esc(ch.title || '')}` : esc(e.chapter || '')],
     [t('f.category'), esc(e.category || '')],
-    [t('f.status'), esc(e.status || '')],
+    [t('f.status'), esc(vocabLabel('status', e.status, getLang()))],
     [t('f.notes'), esc(e.notes || '')],
     ...Object.entries(e.extra || {}).map(([k, v]) => [esc(k), esc(v)]),
   ].filter(([, v]) => v);
@@ -218,7 +218,7 @@ export function narrativeOption({ db, state, th }) {
       tooltip: { trigger: 'item', confine: true, backgroundColor: th.surface, borderColor: th.grid, textStyle: { color: th.ink }, extraCssText: 'max-width:340px;white-space:normal',
         formatter: (p) => { const e = db.byId.events.get(p.data.ev); return `<b>${esc(e.title)}</b><br>${fmtDate(e.dateMs, e.prec, lang)} · ${esc(e.chapter)}${e.category ? ' · ' + esc(e.category) : ''}`; } },
       xAxis: { type: 'time', min: (v) => v.min - Math.max(60 * DAY, (v.max - v.min) * 0.03), max: (v) => v.max + Math.max(60 * DAY, (v.max - v.min) * 0.03), axisLabel: { color: th.muted, formatter: axisDate, hideOverlap: true }, axisLine: { lineStyle: { color: th.axis } }, splitLine: { show: true, lineStyle: { color: th.grid } } },
-      yAxis: { type: 'category', inverse: true, data: chapters.map((c) => `${c.id} ${c.title || ''}`.slice(0, 18)), axisLabel: { color: th.ink2, fontSize: 12 }, axisTick: { show: false }, axisLine: { lineStyle: { color: th.axis } }, splitLine: { show: true, lineStyle: { color: th.grid } } },
+      yAxis: { type: 'category', inverse: true, data: chapters.map((c) => `${c.id} ${c.title || ''}`), axisLabel: { color: th.ink2, fontSize: 12, width: 140, overflow: 'truncate' }, axisTick: { show: false }, axisLine: { lineStyle: { color: th.axis } }, splitLine: { show: true, lineStyle: { color: th.grid } } },
       series: [...groups.values()].map((g) => ({ type: 'scatter', name: g.c.label, symbolSize: 11, data: g.data })),
     },
     height: Math.max(180, chapters.length * 22 + 50),
